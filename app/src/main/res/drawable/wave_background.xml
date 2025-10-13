@@ -1,0 +1,103 @@
+<!-- res/drawable/wave_background.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="412dp"
+    android:height="500dp"
+    android:viewportWidth="412"
+    android:viewportHeight="500">
+
+    <!-- Forma principal con onda superior -->
+    <path
+        android:fillColor="#7B68EE"
+        android:pathData="M0,70 C0,70 80,20 150,40 C220,60 280,30 350,40 C390,45 412,55 412,70 L412,500 L0,500 Z" />
+
+    <!-- Onda superior blanca -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0 C0,0 80,50 150,30 C220,10 280,40 350,30 C390,25 412,35 412,0 L412,70 C412,70 390,45 350,40 C280,30 220,60 150,40 C80,20 0,70 0,70 Z" />
+
+    <!-- Logo ESCOM (círculo pequeño) - Converted to path -->
+    <path
+        android:fillColor="#5B4BC9"
+        android:pathData="M35,10 A25,25 0 1,1 34.9,10 Z" />
+
+    <!-- Círculo central grande - capa 1 - Converted to path -->
+    <path
+        android:fillColor="#6B58DE"
+        android:pathData="M206,130 A120,120 0 1,1 205.9,130 Z" />
+
+    <!-- Círculo central grande - capa 2 - Converted to path -->
+    <path
+        android:fillColor="#7B68EE"
+        android:pathData="M206,140 A110,110 0 1,1 205.9,140 Z" />
+
+    <!-- Círculo central grande - capa 3 - Converted to path -->
+    <path
+        android:fillColor="#8B78FF"
+        android:pathData="M206,150 A100,100 0 1,1 205.9,150 Z" />
+
+    <!-- Logo Pesconotorio (motocicleta simplificada) -->
+    <group
+        android:translateX="156"
+        android:translateY="200">
+
+        <!-- Rueda trasera - Converted to path -->
+        <path
+            android:strokeColor="#2D2D5E"
+            android:strokeWidth="3"
+            android:fillColor="@android:color/transparent"
+            android:pathData="M15,33 A12,12 0 1,1 14.9,33 Z" />
+
+        <!-- Rueda delantera - Converted to path -->
+        <path
+            android:strokeColor="#2D2D5E"
+            android:strokeWidth="3"
+            android:fillColor="@android:color/transparent"
+            android:pathData="M85,33 A12,12 0 1,1 84.9,33 Z" />
+
+        <!-- Cuerpo de la moto -->
+        <path
+            android:strokeColor="#2D2D5E"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:fillColor="@android:color/transparent"
+            android:pathData="M15,45 L40,45 L45,35 L70,35 L85,45" />
+
+        <!-- Asiento -->
+        <path
+            android:strokeColor="#2D2D5E"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:fillColor="@android:color/transparent"
+            android:pathData="M40,35 L30,25" />
+
+        <!-- Persona - cabeza - Converted to path -->
+        <path
+            android:fillColor="#2D2D5E"
+            android:pathData="M35,12 A6,6 0 1,1 34.9,12 Z" />
+
+        <!-- Persona - cuerpo y brazos -->
+        <path
+            android:strokeColor="#2D2D5E"
+            android:strokeWidth="2.5"
+            android:strokeLineCap="round"
+            android:fillColor="@android:color/transparent"
+            android:pathData="M35,24 L35,32 M35,28 L42,30 M35,32 L30,40" />
+    </group>
+
+    <!-- Logo IPN (rectángulo rojo) -->
+    <path
+        android:fillColor="#C41E3A"
+        android:pathData="M350,380 L400,380 Q405,380 405,385 L405,440 Q405,445 400,445 L350,445 Q345,445 345,440 L345,385 Q345,380 350,380 Z" />
+
+    <!-- Onda inferior -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,450 C0,450 80,480 150,460 C220,440 280,470 350,460 C390,455 412,465 412,450 L412,500 L0,500 Z" />
+
+    <path
+        android:strokeColor="#7B68EE"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M0,450 C0,450 80,480 150,460 C220,440 280,470 350,460 C390,455 412,465 412,450" />
+</vector>
+
