@@ -11,5 +11,5 @@
     <color name="button_background">#6C63FF</color> <color name="button_text_color">#FFFFFF</color>
     <color name="primary_text_color">#FFFFFF</color>
     <color name="secondary_text_color">#B3FFFFFF</color> <color name="link_text_color">#6C63FF</color>
-    <color name="splash_background">#F8F9FE</color>
+    <color name="splash_background">#0A0A1F</color>
 </resources>

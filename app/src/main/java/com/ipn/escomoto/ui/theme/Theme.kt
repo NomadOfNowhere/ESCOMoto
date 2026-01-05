@@ -1,7 +1,7 @@
-// ui/theme/Theme.kt
 package com.ipn.escomoto.ui.theme
 
 import android.app.Activity
+import android.content.res.Resources.Theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
@@ -22,55 +23,53 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PurpleLight,
     tertiary = PurpleDark,
     background = BackgroundDark,
-    surface = BackgroundDark,
+    surface = SurfaceDark,
+    surfaceVariant = SurfaceDarkVariant,
     onPrimary = Color.White,
-    onSecondary = Color.White,
+    onSecondary = Color.Black,
     onTertiary = Color.White,
     onBackground = Color.White,
     onSurface = Color.White,
+    outline = Color.Gray,
+    error = Error,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PurplePrimary,
+    primary = Color(0xFF6200EE),
     secondary = PurpleLight,
     tertiary = PurpleDark,
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
+    background = BackgroundLight,
+    surface = SurfaceLight,
+    surfaceVariant = SurfaceLight,
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
     onTertiary = Color.White,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
+    onBackground = Color(0xFF000000),
+    onSurface = Color(0xFF000000),
+    outline = Color(0xFF757575),
+    error = ErrorLight,
 )
 
 @Composable
 fun ESCOMotoTheme(
-    darkTheme: Boolean = true, // Siempre usar tema oscuro por defecto
-    dynamicColor: Boolean = false, // Desactivar colores dinámicos
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb()
-            window.navigationBarColor = BackgroundDark.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            window.statusBarColor = colorScheme.background.toArgb()
+            window.navigationBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
         content = content
     )
 }
