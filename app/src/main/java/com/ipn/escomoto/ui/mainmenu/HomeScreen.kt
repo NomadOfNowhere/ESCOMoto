@@ -36,7 +36,12 @@ import com.ipn.escomoto.ui.mainmenu.components.QuickActionCard
 import com.ipn.escomoto.ui.mainmenu.components.SystemStatsCard
 
 @Composable
-fun HomeScreen(name: String, escomId: String, userType: String, modifier: Modifier) {
+fun HomeScreen(
+    name: String,
+    escomId: String,
+    userType: String,
+    modifier: Modifier
+) {
     // Animación de entrada para elementos
     var visible by remember { mutableStateOf(false) }
 
@@ -124,7 +129,7 @@ fun HomeScreen(name: String, escomId: String, userType: String, modifier: Modifi
         }
 
         // Sección según tipo de usuario
-        if (userType == "Supervisor") {
+        if (userType == "Supervisor" || userType == "Administrador") {
             item {
                 AnimatedVisibility(
                     visible = visible,
@@ -159,7 +164,8 @@ fun HomeScreen(name: String, escomId: String, userType: String, modifier: Modifi
                     }
                 }
             }
-        } else if (userType == "Administrador") {
+        }
+        if (userType == "Administrador") {
             item {
                 AnimatedVisibility(
                     visible = visible,

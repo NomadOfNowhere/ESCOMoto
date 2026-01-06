@@ -60,7 +60,6 @@ fun MainMenuScreen(
                     escomId = user?.escomId ?: "",
                     userType = user?.userType ?: "Visitante",
                     modifier = contentModifier
-
                 )
                 1 -> ActivitiesScreen(user?.userType ?: "Visitante", contentModifier)
                 2 -> ServicesScreen(user?.userType ?: "Visitante", contentModifier)

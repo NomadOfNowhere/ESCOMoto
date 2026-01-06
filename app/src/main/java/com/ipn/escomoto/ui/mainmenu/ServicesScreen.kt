@@ -73,13 +73,13 @@ fun ServicesScreen(userType: String, modifier: Modifier) {
                     text = "Servicios",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
         }
 
-        if (userType == "Supervisor") {
+        if (userType == "Supervisor" || userType == "Administrador") {
             item {
                 AnimatedVisibility(
                     visible = visible,
@@ -120,7 +120,8 @@ fun ServicesScreen(userType: String, modifier: Modifier) {
                     }
                 }
             }
-        } else if (userType == "Administrador") {
+        }
+        if (userType == "Administrador") {
             item {
                 AnimatedVisibility(
                     visible = visible,
@@ -220,7 +221,7 @@ fun ServiceMenuItem(
             pressed = true
             onClick()
         },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -252,18 +253,18 @@ fun ServiceMenuItem(
                     text = title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.outline,
                 )
             }
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = Color.Gray
+                tint = MaterialTheme.colorScheme.outline,
             )
         }
     }

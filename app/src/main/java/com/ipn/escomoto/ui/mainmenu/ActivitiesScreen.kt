@@ -48,12 +48,12 @@ fun ActivitiesScreen(userType: String, modifier: Modifier) {
                     text = "Historial de actividad",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Aquí verás tu historial de check-in y check-out",
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.outline,
                 )
             }
         }
