@@ -30,9 +30,6 @@ fun BottomNavigationBar(
             selected = selectedTab == 0,
             onClick = { onTabSelected(0) },
             colors = NavigationBarItemDefaults.colors(
-//                selectedIconColor = Color(0xFF7C4DFF),
-//                selectedTextColor = Color(0xFF7C4DFF),
-//                indicatorColor = Color(0xFF7C4DFF).copy(alpha = 0.2f),
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 selectedTextColor = MaterialTheme.colorScheme.primary,
                 indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),

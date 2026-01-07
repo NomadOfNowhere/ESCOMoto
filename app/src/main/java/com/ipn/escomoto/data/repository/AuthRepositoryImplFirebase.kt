@@ -1,22 +1,18 @@
 package com.ipn.escomoto.data.repository
 
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.firestore
 import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.domain.repository.AuthRepository
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
-import com.ipn.escomoto.ui.auth.AuthViewModel
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthRepositoryImplFirebase @Inject constructor(
-    private val auth: FirebaseAuth
-) : AuthRepository {
+class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db = Firebase.firestore
 
     override suspend fun login(email: String, pass: String): Result<User> {

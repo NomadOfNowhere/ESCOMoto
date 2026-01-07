@@ -48,7 +48,7 @@ fun PendingRequestCard(userName: String, userEscomId: String, motorcyclePlate: S
                 Icon(
                     Icons.Default.Person,
                     contentDescription = null,
-                    tint = Color(0xFF7C4DFF),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -81,7 +81,7 @@ fun PendingRequestCard(userName: String, userEscomId: String, motorcyclePlate: S
 
                 Button(
                     onClick = { approvePressed = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C4DFF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .weight(1f)
                         .scale(approveScale)

@@ -36,7 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun MotorcycleCard(plate: String, model: String, onClick: () -> Unit) {
+fun MotorcycleCard(
+    plate: String,
+    model: String,
+    onClick: () -> Unit
+) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.98f else 1f,
@@ -66,13 +70,13 @@ fun MotorcycleCard(plate: String, model: String, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF7C4DFF).copy(alpha = 0.2f)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.DirectionsBike,
                     contentDescription = null,
-                    tint = Color(0xFF7C4DFF),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp)
                 )
             }

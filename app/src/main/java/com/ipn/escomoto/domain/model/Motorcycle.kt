@@ -6,21 +6,21 @@ import android.util.Log
 data class Motorcycle(
     val id: String = "",
     val licensePlate: String = "",
+    val brand: String = "",
     val model: String = "",
-    val image: Uri = Uri.EMPTY,
+    val imageUrl: String = "",
     val ownerId: String = "",
     val ownerName: String = ""
 ){
-    constructor() : this("","","", Uri.EMPTY, "", "")
-
-    fun debug(title: String = "", tag: String = "USER_DEBUG") {
+    fun debug(title: String = "", tag: String = "DEBUG_MOTO") {
         val info = """
             ${title}
             ╔════════ DEPURACIÓN DE USUARIO ════════╗
             ║ ID: $id
             ║ Placa: $licensePlate
+            ║ Marca: $brand
             ║ Modelo: $model
-            ║ Foto: $image
+            ║ Foto: $imageUrl
             ║ Dueño: $ownerName
             ║ DueñoID: $ownerId
             ╚═══════════════════════════════════════╝

@@ -1,5 +1,7 @@
 package com.ipn.escomoto.ui.mainmenu
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ipn.escomoto.domain.model.Motorcycle
 import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.ui.mainmenu.components.BottomNavigationBar
 
@@ -25,6 +27,14 @@ fun MainMenuScreen(
     viewModel: MainMenuViewModel = hiltViewModel()
 ) {
     val selectedTab = viewModel.selectedTab
+
+    LaunchedEffect(user?.id) {
+        user?.id?.let { id ->
+            if (id.isNotEmpty()) {
+                viewModel.loadMotorcycles(id)
+            }
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -60,7 +70,23 @@ fun MainMenuScreen(
                     name = user?.name ?: "Usuario",
                     escomId = user?.escomId ?: "",
                     userType = user?.userType ?: "Visitante",
-                    modifier = contentModifier
+                    modifier = contentModifier,
+                    motorcycles = viewModel.motorcycles,
+                    isLoading = viewModel.isLoading,
+                    onRefresh = { viewModel.loadMotorcycles(user?.id ?: "") },
+                    onAddMotorcycle = { brand, model, plate, imageUri ->
+                        viewModel.addMotorcycle(
+                            Motorcycle(
+                                id = "",
+                                ownerId = user?.id ?: "",
+                                ownerName = user?.name ?: "",
+                                brand = brand,
+                                model = model,
+                                licensePlate = plate,
+                                imageUrl = ""
+                            ), imageUri = imageUri
+                        )
+                    }
                 )
                 1 -> ActivitiesScreen(user?.userType ?: "Visitante", contentModifier)
                 2 -> ServicesScreen(user?.userType ?: "Visitante", contentModifier)

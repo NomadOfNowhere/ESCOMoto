@@ -9,8 +9,6 @@ data class User(
     val userType: String = "",
     val createdAt: Long = System.currentTimeMillis()
 ) {
-    constructor() : this("", "", "", null, "", 0)
-
     fun debug(title: String = "", tag: String = "USER_DEBUG") {
         val info = """
             ${title}
