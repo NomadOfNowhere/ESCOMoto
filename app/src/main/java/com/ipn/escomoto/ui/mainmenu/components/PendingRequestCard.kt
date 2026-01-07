@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +39,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun PendingRequestCard(userName: String, userEscomId: String, motorcyclePlate: String, requestType: String) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -52,13 +53,13 @@ fun PendingRequestCard(userName: String, userEscomId: String, motorcyclePlate: S
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = userName, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text(text = "Boleta: $userEscomId", fontSize = 12.sp, color = Color.Gray)
+                    Text(text = userName, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                    Text(text = "Boleta: $userEscomId", fontSize = 12.sp, color = MaterialTheme.colorScheme.outline)
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Placas: $motorcyclePlate", color = Color.White)
-            Text(text = "Tipo: $requestType", fontSize = 12.sp, color = Color.Gray)
+            Text(text = "Placas: $motorcyclePlate", color = MaterialTheme.colorScheme.onBackground)
+            Text(text = "Tipo: $requestType", fontSize = 12.sp, color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 var approvePressed by remember { mutableStateOf(false) }
@@ -87,6 +88,7 @@ fun PendingRequestCard(userName: String, userEscomId: String, motorcyclePlate: S
                 ) {
                     Text("Aprobar", color = Color.Black)
                 }
+                // CHECAR ESTOS COLORES DESPUÉS
                 OutlinedButton(
                     onClick = { rejectPressed = true },
                     modifier = Modifier

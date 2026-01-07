@@ -1,5 +1,7 @@
 package com.ipn.escomoto.data.repository
 
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.ipn.escomoto.domain.model.User
@@ -7,10 +9,14 @@ import com.ipn.escomoto.domain.repository.AuthRepository
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.FirebaseFirestore
+import com.ipn.escomoto.ui.auth.AuthViewModel
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AuthRepositoryImpl : AuthRepository {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+@Singleton
+class AuthRepositoryImplFirebase @Inject constructor(
+    private val auth: FirebaseAuth
+) : AuthRepository {
     private val db = Firebase.firestore
 
     override suspend fun login(email: String, pass: String): Result<User> {
@@ -96,7 +102,7 @@ class AuthRepositoryImpl : AuthRepository {
                     Result.failure(Exception("Error al convertir los datos del usuario"))
                 }
             } else {
-                // Caso borde: Existe en Auth pero no en Firestore
+                // Existe en Auth pero no en Firestore
                 Result.success(mapToDomain(firebaseUser))
             }
         } catch (e: Exception) {

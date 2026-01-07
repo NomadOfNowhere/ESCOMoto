@@ -1,16 +1,17 @@
 package com.ipn.escomoto.domain.model
 
+import android.net.Uri
 import android.util.Log
 
-data class Motorcycles(
+data class Motorcycle(
     val id: String = "",
     val licensePlate: String = "",
     val model: String = "",
-    val photo: String = "",
+    val image: Uri = Uri.EMPTY,
     val ownerId: String = "",
     val ownerName: String = ""
 ){
-    constructor() : this("","","", "", "", "")
+    constructor() : this("","","", Uri.EMPTY, "", "")
 
     fun debug(title: String = "", tag: String = "USER_DEBUG") {
         val info = """
@@ -19,7 +20,7 @@ data class Motorcycles(
             ║ ID: $id
             ║ Placa: $licensePlate
             ║ Modelo: $model
-            ║ Foto: $photo
+            ║ Foto: $image
             ║ Dueño: $ownerName
             ║ DueñoID: $ownerId
             ╚═══════════════════════════════════════╝

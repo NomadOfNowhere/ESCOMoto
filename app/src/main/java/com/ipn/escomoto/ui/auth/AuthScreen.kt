@@ -38,11 +38,12 @@ import com.ipn.escomoto.ui.theme.BackgroundGradientEnd
 import com.ipn.escomoto.ui.theme.BackgroundGradientEndLight
 import com.ipn.escomoto.ui.theme.BackgroundGradientStart
 import com.ipn.escomoto.ui.theme.BackgroundGradientStartLight
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun AuthScreen(
     onLoginSuccess: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     var isLogin by remember { mutableStateOf(true) }
     val isDarkTheme = isSystemInDarkTheme()

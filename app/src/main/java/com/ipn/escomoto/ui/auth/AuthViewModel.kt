@@ -5,14 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ipn.escomoto.data.repository.AuthRepositoryImpl
+import com.ipn.escomoto.data.repository.AuthRepositoryImplFirebase
 import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.domain.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    private val repository: AuthRepository = AuthRepositoryImpl()
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     var currentUser by mutableStateOf<User?>(null)
         private set
@@ -31,7 +34,7 @@ class AuthViewModel : ViewModel() {
         executeAuthAction(
             action = {
                 // Llamamos al repositorio para obtener la sesión activa
-                repository.getCurrentUser()
+                authRepository.getCurrentUser()
             },
             onSuccessCallback = { }
         )
@@ -47,9 +50,9 @@ class AuthViewModel : ViewModel() {
         executeAuthAction(
             action = {
                 val email = if(id.contains("@")) id else {
-                    repository.getEmailByEscomId(id).getOrThrow()
+                    authRepository.getEmailByEscomId(id).getOrThrow()
                 }
-                repository.login(email, pass)
+                authRepository.login(email, pass)
             },
             onSuccessCallback = {
                 onLoginSuccess()
@@ -82,7 +85,7 @@ class AuthViewModel : ViewModel() {
         }
 
         executeAuthAction(
-            action = { repository.register(name, escomId, email, password, userType) },
+            action = { authRepository.register(name, escomId, email, password, userType) },
             onSuccessCallback = { onRegisterSuccess() }
         )
     }
@@ -102,7 +105,7 @@ class AuthViewModel : ViewModel() {
 //    }
 
     fun logout() {
-        repository.logout()
+        authRepository.logout()
         currentUser = null
         isUserLoggedIn = false
     }

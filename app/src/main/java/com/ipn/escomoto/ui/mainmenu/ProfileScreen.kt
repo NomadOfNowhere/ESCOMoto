@@ -75,7 +75,7 @@ fun ProfileScreen(
                 text = "Mi cuenta",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
         }
@@ -112,12 +112,12 @@ fun ProfileScreen(
                         text = name,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "Boleta: $escomId",
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
             }
@@ -202,7 +202,7 @@ fun ProfileMenuItem(
             containerColor = if (isDestructive)
                 Color(0xFFFF6E40).copy(alpha = 0.1f)
             else
-                Color(0xFF1E1E1E)
+                MaterialTheme.colorScheme.surfaceVariant
         ),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -239,7 +239,7 @@ fun ProfileMenuItem(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = if (isDestructive) Color(0xFFFF6E40) else Color.White,
+                color = if (isDestructive) Color(0xFFFF6E40) else MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.weight(1f)
             )
             Icon(

@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import com.ipn.escomoto.ui.navigation.AppNavigation
 import com.ipn.escomoto.ui.theme.ESCOMotoTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint   // Hilts entry point
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -29,5 +31,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-// adb install -r C:\Users\Joshua\AndroidStudioProjects\ESCOMoto\app\build\outputs\apk\debug\app-debug.apk
