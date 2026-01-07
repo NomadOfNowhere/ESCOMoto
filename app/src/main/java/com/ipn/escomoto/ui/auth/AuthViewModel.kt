@@ -61,15 +61,14 @@ class AuthViewModel @Inject constructor(
     }
 
     fun register(
-        name: String,
-        escomId: String,
-        email: String,
+        user: User,
         password: String,
         confirmPassword: String,
-        userType: String,
         onRegisterSuccess: () -> Unit
     ) {
-        if (name.isBlank() || email.isBlank() || password.isBlank() || (userType == "ESCOMunidad" && escomId.isBlank())) {
+        if (name.isBlank() || email.isBlank() || password.isBlank()
+            || (userType == "ESCOMunidad" && escomId!!.isBlank())
+            || (userType == "Visitante" && imageUrl!!.isBlank())) {
             errorMessage = "Por favor, llena todos los campos"
             return
         }
@@ -89,20 +88,6 @@ class AuthViewModel @Inject constructor(
             onSuccessCallback = { onRegisterSuccess() }
         )
     }
-
-//    fun registerGuest(onSuccess: () -> Unit) {
-//        executeAuthAction {
-//            // Un invitado no tiene email ni pass iniciales,
-//            // el repo genera un ID temporal
-//            repository.register(
-//                name = "Invitado",
-//                escomId = "",
-//                email = "guest_${System.currentTimeMillis()}@escomoto.com",
-//                password = "guest_temp_pass",
-//                userType = "Visitante"
-//            ).onSuccess { onSuccess() }
-//        }
-//    }
 
     fun logout() {
         authRepository.logout()

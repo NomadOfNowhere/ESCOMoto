@@ -39,6 +39,7 @@ import com.ipn.escomoto.ui.theme.BackgroundGradientEndLight
 import com.ipn.escomoto.ui.theme.BackgroundGradientStart
 import com.ipn.escomoto.ui.theme.BackgroundGradientStartLight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.ipn.escomoto.domain.model.User
 
 @Composable
 fun AuthScreen(
@@ -137,7 +138,14 @@ fun AuthScreen(
                         isLoading = viewModel.isLoading,
                         errorMessage = viewModel.errorMessage,
                         onRegisterSubmit = { name, escomId, email, pass, confirm, type ->
-                            viewModel.register(name, escomId, email, pass, confirm, type, onLoginSuccess)
+                            viewModel.register(
+                                User(
+                                    name = name,
+                                    escomId = escomId,
+                                    email = email,
+                                    userType = type
+                                ), password = passs, confirmPassword = confirm, onLoginSuccess
+                            )
                         },
                         onSwitchToLogin = { isLogin = true }
                     )

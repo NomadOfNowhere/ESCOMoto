@@ -1,12 +1,16 @@
 package com.ipn.escomoto.data.repository
 
+import android.net.Uri
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.domain.repository.AuthRepository
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,6 +18,8 @@ import javax.inject.Singleton
 class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db = Firebase.firestore
+    private val storageRef = FirebaseStorage.getInstance().reference
+
 
     override suspend fun login(email: String, pass: String): Result<User> {
         return try {
@@ -39,10 +45,11 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
 
     override suspend fun register(
         name: String,
-        escomId: String,
         email: String,
         password: String,
-        userType: String
+        userType: String,
+        escomId: String?,
+        imageUrl: String?
     ): Result<User> {
         return try {
             // Llamada a firebase para crear el usuario
@@ -108,6 +115,37 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
 
     override fun logout() {
         auth.signOut()
+    }
+
+    override suspend fun uploadImage(imageUri: Uri): Result<String> {
+        return try {
+            // Generar ID único
+            val fileName = "officialIds/${UUID.randomUUID()}.jpg"
+            val fileRef = storageRef.child(fileName)
+
+            // Subir el archivo (Uri) a la nube
+            fileRef.putFile(imageUri).await()
+
+            // Obtener la URL de descarga
+            val downloadUrl = fileRef.downloadUrl.await().toString()
+
+            Result.success(downloadUrl)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateImageUrl(userId: String, newUrl: String): Result<Unit> {
+        return try {
+            // Buscamos el documento con su ID y actualizamos datos
+            Log.d("USER_DEBUG", userId + " " + newUrl)
+            db.document(userId).update("imageUrl", newUrl).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     // Mapper

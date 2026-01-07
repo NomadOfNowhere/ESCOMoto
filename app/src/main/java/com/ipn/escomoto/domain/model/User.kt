@@ -5,9 +5,10 @@ data class User(
     val id: String = "",
     val email: String = "",
     val name: String = "",
-    val escomId: String? = null,
     val userType: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val escomId: String? = null,
+    val officialIdUrl: String? = null,
 ) {
     fun debug(title: String = "", tag: String = "USER_DEBUG") {
         val info = """
@@ -19,6 +20,7 @@ data class User(
             ║ Boleta/ID: ${escomId ?: "N/A"}
             ║ Tipo: $userType
             ║ Creado: ${java.util.Date(createdAt)}
+            ║ Identificación: $officialIdUrl
             ╚═══════════════════════════════════════╝
         """.trimIndent()
         Log.d(tag, info)
