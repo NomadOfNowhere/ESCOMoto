@@ -1,5 +1,8 @@
 package com.ipn.escomoto.ui.auth
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -87,8 +90,17 @@ fun RegisterForm(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
     var acceptTerms by remember { mutableStateOf(false) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
     val isDarkTheme = isSystemInDarkTheme()
     val focusManager = LocalFocusManager.current
+
+
+    var nameError by remember { mutableStateOf(false) }
+    var escomIdError by remember { mutableStateOf(false) }
+    var emailError by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf(false) }
+    var confirmPasswordError by remember { mutableStateOf(false) }
+    var imageUriError by remember { mutableStateOf(false) }
 
     // Estado para animación inicial
     var isVisible by remember { mutableStateOf(false) }
@@ -109,6 +121,16 @@ fun RegisterForm(
         animationSpec = tween(durationMillis = 500),
         label = "card_offset"
     )
+
+    // Launcher para seleccionar imagen
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+//        if (uri != null) {
+//            imageUriError = false
+//        }
+    }
 
     Card(
         modifier = Modifier
@@ -323,6 +345,8 @@ fun RegisterForm(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Sección para subir foto de identificación oficial
+            /*****/
+
             AnimatedVisibility(
                 visible = userType == "Visitante",
                 enter = fadeIn() + expandVertically(),
@@ -337,7 +361,7 @@ fun RegisterForm(
                             .size(100.dp)
                             .clip(CircleShape)
                             .background(PurplePrimary.copy(alpha = 0.1f))
-                            .clickable { },
+                            .clickable { imagePickerLauncher.launch("image/*") },
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -366,6 +390,7 @@ fun RegisterForm(
                 }
             }
 
+            /*******/
             // Términos con animación
             Row(
                 verticalAlignment = Alignment.CenterVertically,

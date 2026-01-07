@@ -65,6 +65,92 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import androidx.compose.foundation.BorderStroke
+import com.ipn.escomoto.ui.components.FormImagePicker
+import com.ipn.escomoto.ui.components.FormTextField
+import com.ipn.escomoto.ui.components.GenericFormDialog
+/*
+@Composable
+fun AddMotorcycleDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String, String, Uri) -> Unit
+) {
+    // 1. Estado del Formulario
+    var brand by remember { mutableStateOf("") }
+    var model by remember { mutableStateOf("") }
+    var plate by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 2. Estado de Errores (Map simple o variables booleanas)
+    var errors by remember { mutableStateOf(mapOf<String, String>()) }
+
+    // 3. Función de validación
+    fun validateAndSubmit() {
+        val newErrors = mutableMapOf<String, String>()
+
+        if (brand.isBlank()) newErrors["brand"] = "La marca es requerida"
+        if (model.isBlank()) newErrors["model"] = "El modelo es requerido"
+        if (plate.isBlank()) newErrors["plate"] = "Las placas son requeridas"
+        if (imageUri == null) newErrors["image"] = "La foto es obligatoria"
+
+        if (newErrors.isEmpty()) {
+            onConfirm(brand, model, plate, imageUri!!)
+        } else {
+            errors = newErrors
+        }
+    }
+
+    // 4. USAMOS EL COMPONENTE GENÉRICO
+    GenericFormDialog(
+        title = "Agregar motocicleta",
+        subtitle = "Completa la información de tu vehículo",
+        onDismiss = onDismiss,
+        onConfirm = { validateAndSubmit() },
+        confirmText = "Agregar"
+    ) {
+        // --- AQUÍ VA TU CONTENIDO PERSONALIZADO ---
+
+        FormImagePicker(
+            imageUri = imageUri,
+            onImageSelected = {
+                imageUri = it
+                errors = errors - "image" // Limpiar error al seleccionar
+            },
+            errorMessage = errors["image"]
+        )
+
+        FormTextField(
+            value = brand,
+            onValueChange = { brand = it; errors = errors - "brand" },
+            label = "Marca",
+            placeholder = "Ej: Yamaha",
+            icon = Icons.Default.DirectionsBike,
+            errorMessage = errors["brand"]
+        )
+
+        FormTextField(
+            value = model,
+            onValueChange = { model = it; errors = errors - "model" },
+            label = "Modelo",
+            placeholder = "Ej: R-3",
+            icon = Icons.Default.Build,
+            errorMessage = errors["model"]
+        )
+
+        FormTextField(
+            value = plate,
+            onValueChange = {
+                if (it.length <= 10) plate = it.uppercase()
+                errors = errors - "plate"
+            },
+            label = "Placas",
+            placeholder = "Ej: ABC-123",
+            icon = Icons.Default.Info,
+            errorMessage = errors["plate"]
+        )
+    }
+}
+
+*/
 
 @Composable
 fun AddMotorcycleDialog(
@@ -455,110 +541,3 @@ fun AddMotorcycleDialog(
         }
     }
 }
-//
-//// Actualiza EmptyMotorcycleState para mostrar el dialog
-//@Composable
-//fun EmptyMotorcycleState(
-//    onAddMotorcycle: (brand: String, model: String, licensePlate: String, imageUri: Uri?) -> Unit
-//) {
-//    var showDialog by remember { mutableStateOf(false) }
-//
-//    Card(
-//        colors = CardDefaults.cardColors(
-//            containerColor = MaterialTheme.colorScheme.surface
-//        ),
-//        shape = RoundedCornerShape(16.dp),
-//        modifier = Modifier.fillMaxWidth()
-//    ) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(32.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
-//        ) {
-//            // Icono grande
-//            Box(
-//                modifier = Modifier
-//                    .size(80.dp)
-//                    .background(
-//                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-//                        shape = RoundedCornerShape(40.dp)
-//                    ),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Icon(
-//                    Icons.Default.DirectionsBike,
-//                    contentDescription = null,
-//                    tint = MaterialTheme.colorScheme.primary,
-//                    modifier = Modifier.size(40.dp)
-//                )
-//            }
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            Text(
-//                text = "No tienes motocicletas",
-//                fontSize = 18.sp,
-//                fontWeight = FontWeight.Bold,
-//                color = MaterialTheme.colorScheme.onSurface
-//            )
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Text(
-//                text = "Agrega tu primera motocicleta para comenzar",
-//                fontSize = 14.sp,
-//                color = MaterialTheme.colorScheme.outline
-//            )
-//
-//            Spacer(modifier = Modifier.height(24.dp))
-//
-//            // Botón con animación
-//            var buttonPressed by remember { mutableStateOf(false) }
-//            val buttonScale by animateFloatAsState(
-//                targetValue = if (buttonPressed) 0.95f else 1f,
-//                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-//                label = "button_scale",
-//                finishedListener = { buttonPressed = false }
-//            )
-//
-//            Button(
-//                onClick = {
-//                    buttonPressed = true
-//                    showDialog = true
-//                },
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = MaterialTheme.colorScheme.primary
-//                ),
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .scale(buttonScale),
-//                shape = RoundedCornerShape(12.dp)
-//            ) {
-//                Icon(
-//                    Icons.Default.Add,
-//                    contentDescription = null,
-//                    modifier = Modifier.size(20.dp)
-//                )
-//                Spacer(modifier = Modifier.width(8.dp))
-//                Text(
-//                    text = "Agregar motocicleta",
-//                    fontSize = 16.sp,
-//                    fontWeight = FontWeight.Medium
-//                )
-//            }
-//        }
-//    }
-//
-//    // Mostrar dialog cuando se hace clic
-//    if (showDialog) {
-//        AddMotorcycleDialog(
-//            onDismiss = { showDialog = false },
-//            onConfirm = { brand, model, licensePlate, imageUri ->
-//                showDialog = false
-//                onAddMotorcycle(brand, model, licensePlate, imageUri)
-//            }
-//        )
-//    }
-//}

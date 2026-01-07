@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ipn.escomoto.domain.model.Motorcycle
 import com.ipn.escomoto.domain.model.User
+import com.ipn.escomoto.domain.repository.AccessRepository
 import com.ipn.escomoto.domain.repository.MotorcycleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainMenuViewModel @Inject constructor(
-    private val motorcycleRepository: MotorcycleRepository
+    private val motorcycleRepository: MotorcycleRepository,
+//    private val accessRepository: AccessRepository
 ) : ViewModel() {
     var selectedTab by mutableStateOf(0)
         private set
@@ -25,6 +27,12 @@ class MainMenuViewModel @Inject constructor(
         private set
 
     var isLoading by mutableStateOf(false)
+        private set
+
+    var isUserInside by mutableStateOf(false)
+        private set
+
+    var currentMotoIdInside by mutableStateOf<String?>(null)
         private set
 
     fun onTabSelected(index: Int) {
