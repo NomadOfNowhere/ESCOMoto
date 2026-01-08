@@ -62,32 +62,6 @@ class MainMenuViewModel @Inject constructor(
         }
     }
 
-//    // Función para agregar una moto
-//    fun addMotorcycle(moto: Motorcycle, imageUri: Uri) {
-//        // Límite de 3 motos por usuario
-//        if(motorcycles.size >= 3) return
-//
-//        viewModelScope.launch {
-//            isLoading = true
-//            motorcycleRepository.uploadImage(imageUri).onSuccess { url ->
-//                Log.d("DEBUG_MOTO", "Imagen subida. URL: $url")
-//                val motoCopy = moto.copy(imageUrl = url)
-//
-//                motorcycleRepository.add(motoCopy).onSuccess { newMoto ->
-//                    motorcycles = motorcycles + newMoto
-//                    Log.d("DEBUG_MOTO", "Moto guardada exitosamente con foto")
-//                    isLoading = false
-//                }.onFailure { e->
-//                    Log.e("DEBUG_MOTO", "Error al guardar en Firestore", e)
-//                    isLoading = false
-//                }
-//            }.onFailure { e ->
-//                Log.e("DEBUG_MOTO", "Falló la subida de la imagen. Cancelando operación.", e)
-//                isLoading = false
-//            }
-//        }
-//    }
-
     // Función para agregar una moto
     fun addMotorcycle(moto: Motorcycle, imageUri: Uri) {
         // Límite de 3 motos por usuario
@@ -127,6 +101,69 @@ class MainMenuViewModel @Inject constructor(
                 Log.e("DEBUG_MOTO", "Error al guardar en Firestore", e)
                 isLoading = false
             }
+        }
+    }
+
+    fun updateMotorcycle(motoOriginal: Motorcycle, newBrand: String, newModel: String, newPlate: String, newImageUri: Uri?) {
+        viewModelScope.launch {
+            isLoading = true
+
+            // 1. Objeto con los nuevos datos de texto
+            // Mantenemos la imagen original por ahora
+            val motoActualizada = motoOriginal.copy(
+                brand = newBrand,
+                model = newModel,
+                licensePlate = newPlate
+            )
+
+            // 2. ¿El usuario seleccionó una NUEVA imagen?
+            if (newImageUri != null) {
+                // CASO A: Actualizar con nueva foto
+                motorcycleRepository.uploadImage(newImageUri).onSuccess { url ->
+                    val motoFinal = motoActualizada.copy(imageUrl = url)
+
+                    // Actualizamos todo en BD
+                    motorcycleRepository.update(motoFinal).onSuccess {
+                        updateLocalList(motoFinal)
+                        isLoading = false
+                        Log.d("DEBUG_MOTO", "Moto actualizada con nueva foto")
+                    }
+                }.onFailure {
+                    isLoading = false
+                    Log.e("DEBUG_MOTO", "Error subiendo nueva foto", it)
+                }
+            } else {
+                // CASO B: Solo actualizar textos (Mantiene la URL vieja)
+                motorcycleRepository.update(motoActualizada).onSuccess {
+                    updateLocalList(motoActualizada)
+                    isLoading = false
+                    Log.d("DEBUG_MOTO", "Moto actualizada (solo texto)")
+                }.onFailure {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    fun deleteMotorcycle(motoId: String) {
+        viewModelScope.launch {
+            isLoading = true
+            motorcycleRepository.remove(motoId).onSuccess {
+                // Actualizamos la lista local filtrando la moto borrada
+                motorcycles = motorcycles.filter { it.id != motoId }
+                Log.d("DEBUG_MOTO", "Moto eliminada correctamente")
+                isLoading = false
+            }.onFailure { e ->
+                Log.e("DEBUG_MOTO", "Error al eliminar", e)
+                isLoading = false
+            }
+        }
+    }
+
+    // Función auxiliar para refrescar la lista localmente
+    private fun updateLocalList(updatedMoto: Motorcycle) {
+        motorcycles = motorcycles.map {
+            if (it.id == updatedMoto.id) updatedMoto else it
         }
     }
 }

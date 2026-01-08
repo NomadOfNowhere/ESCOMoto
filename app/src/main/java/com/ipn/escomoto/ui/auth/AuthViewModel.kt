@@ -66,14 +66,14 @@ class AuthViewModel @Inject constructor(
         confirmPassword: String,
         onRegisterSuccess: () -> Unit
     ) {
-        if (name.isBlank() || email.isBlank() || password.isBlank()
-            || (userType == "ESCOMunidad" && escomId!!.isBlank())
-            || (userType == "Visitante" && imageUrl!!.isBlank())) {
+        if (user.name.isBlank() || user.email.isBlank() || password.isBlank()
+            || (user.userType == "ESCOMunidad" && user.escomId!!.isBlank())
+            || (user.userType == "Visitante" && user.officialIdUrl!!.isBlank())) {
             errorMessage = "Por favor, llena todos los campos"
             return
         }
 
-        if(userType == "ESCOMunidad" && escomId.length < 10) {
+        if(user.userType == "ESCOMunidad" && user.escomId!!.length < 10) {
             errorMessage = "Ingresa un ID de ESCOMunidad válido"
             return
         }
@@ -84,7 +84,7 @@ class AuthViewModel @Inject constructor(
         }
 
         executeAuthAction(
-            action = { authRepository.register(name, escomId, email, password, userType) },
+            action = { authRepository.register(user, password) },
             onSuccessCallback = { onRegisterSuccess() }
         )
     }

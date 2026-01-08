@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,6 +35,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ipn.escomoto.domain.model.Motorcycle
 import com.ipn.escomoto.ui.mainmenu.components.AddMotorcycleDialog
+import com.ipn.escomoto.ui.mainmenu.components.EditMotorcycleDialog
 import com.ipn.escomoto.ui.mainmenu.components.LoadingCard
 import com.ipn.escomoto.ui.mainmenu.components.LoadingSkeletonCard
 import com.ipn.escomoto.ui.mainmenu.components.MotorcycleCard
+import com.ipn.escomoto.ui.mainmenu.components.MotorcycleDetailDialog
 import com.ipn.escomoto.ui.mainmenu.components.PendingRequestCard
 import com.ipn.escomoto.ui.mainmenu.components.QuickActionCard
 import com.ipn.escomoto.ui.mainmenu.components.SystemStatsCard
@@ -69,10 +73,65 @@ fun HomeScreen(
     isUserInside: Boolean,
     onCheckInTap: () -> Unit,
     onCheckOutTap: () -> Unit,
+    onUpdateMotorcycle: (Motorcycle, String, String, String, Uri?) -> Unit,
+    onDeleteMotorcycle: (String) -> Unit
 ) {
     // Animación de entrada para elementos
     var visible by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    // 1. NUEVA VARIABLE DE ESTADO
+    var selectedMotorcycle by remember { mutableStateOf<Motorcycle?>(null) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    // 1. DIÁLOGO DE DETALLE (Ahora con botón borrar)
+    if (selectedMotorcycle != null && !showEditDialog && !showDeleteConfirmation) {
+        MotorcycleDetailDialog(
+            motorcycle = selectedMotorcycle!!,
+            onDismiss = { selectedMotorcycle = null },
+            onEdit = { showEditDialog = true },
+            onDelete = { showDeleteConfirmation = true }
+        )
+    }
+
+    if (showEditDialog && selectedMotorcycle != null) {
+        EditMotorcycleDialog(
+            motorcycle = selectedMotorcycle!!,
+            onDismiss = { showEditDialog = false }, // Al cancelar, volvemos al detalle o cerramos
+            onConfirm = { brand, model, plate, newUri ->
+                onUpdateMotorcycle(selectedMotorcycle!!, brand, model, plate, newUri)
+                showEditDialog = false
+                selectedMotorcycle = null // Cerramos todo al terminar
+            }
+        )
+    }
+
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("¿Eliminar motocicleta?") },
+            text = { Text("Esta acción no se puede deshacer. ¿Estás seguro?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // Borramos usando el ID
+                        onDeleteMotorcycle(selectedMotorcycle!!.id)
+                        showDeleteConfirmation = false
+                        selectedMotorcycle = null // Cerramos el detalle
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     if (showDialog) {
         AddMotorcycleDialog(
@@ -266,8 +325,10 @@ fun HomeScreen(
                     Column {
                         MotorcycleCard(
                             plate = moto.licensePlate,
+                            brand = moto.brand,
                             model = moto.model,
-                            onClick = { }
+                            imageUrl = moto.imageUrl,
+                            onClick = { selectedMotorcycle = moto }
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -310,8 +371,6 @@ fun HomeScreen(
         }
     }
 }
-
-
 
 @Composable
 fun EmptyMotorcycleState(
@@ -382,7 +441,7 @@ fun EmptyMotorcycleState(
                     onAddMotorcycle()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color(0xFF7B68EE)
                 ),
                 modifier = Modifier
                     .fillMaxWidth()

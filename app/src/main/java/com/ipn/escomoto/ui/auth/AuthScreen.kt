@@ -104,7 +104,7 @@ fun AuthScreen(
                 LogoSection()
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Formulario animado
             AnimatedContent(
@@ -144,7 +144,10 @@ fun AuthScreen(
                                     escomId = escomId,
                                     email = email,
                                     userType = type
-                                ), password = passs, confirmPassword = confirm, onLoginSuccess
+                                ),
+                                password = pass,
+                                confirmPassword = confirm,
+                                onLoginSuccess
                             )
                         },
                         onSwitchToLogin = { isLogin = true }

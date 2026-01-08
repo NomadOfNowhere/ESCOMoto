@@ -119,7 +119,7 @@ fun LoginForm(
                 modifier = Modifier.padding(top = 4.dp)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Campo de correo con animación
             AnimatedTextField(
@@ -178,20 +178,20 @@ fun LoginForm(
                     }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Mensaje de Error
-            if (errorMessage != null) {
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 12.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
+//            // Mensaje de Error
+//            if (errorMessage != null) {
+//                Text(
+//                    text = errorMessage,
+//                    color = MaterialTheme.colorScheme.error,
+//                    fontSize = 12.sp,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(bottom = 8.dp),
+//                    textAlign = TextAlign.Center
+//                )
+//            }
 
             // Botón de inicio de sesión animado
             AnimatedLoginButton(
@@ -200,7 +200,7 @@ fun LoginForm(
                 text = "Iniciar sesión"
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Divisor
             Row(
@@ -222,7 +222,7 @@ fun LoginForm(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Crear cuenta
             Row(

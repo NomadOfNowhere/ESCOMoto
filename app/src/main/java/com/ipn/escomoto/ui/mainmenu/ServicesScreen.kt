@@ -174,7 +174,7 @@ fun ServicesScreen(userType: String, modifier: Modifier) {
                             icon = Icons.Default.DirectionsBike,
                             title = "Mis motocicletas",
                             description = "Gestionar vehículos",
-                            onClick = { }
+                            onClick = {  }
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }

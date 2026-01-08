@@ -54,8 +54,20 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
 
     override suspend fun remove(motoId: String): Result<Unit> {
         return try {
+            val docRef = db.document(motoId)
+            val snapshot = docRef.get().await()
+            val imageUrl = snapshot.getString("imageUrl")
+
+            if(!imageUrl.isNullOrEmpty()) {
+                try {
+                    val imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                    imageRef.delete().await()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
             // Buscamos el documento con su ID y eliminamos
-            db.document(motoId).delete().await()
+            docRef.delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

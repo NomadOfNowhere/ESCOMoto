@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
+import com.ipn.escomoto.domain.model.Motorcycle
 import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.domain.repository.AuthRepository
 import kotlinx.coroutines.tasks.await
@@ -44,24 +45,20 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
     }
 
     override suspend fun register(
-        name: String,
-        email: String,
-        password: String,
-        userType: String,
-        escomId: String?,
-        imageUrl: String?
+        user: User,
+        password: String
     ): Result<User> {
         return try {
             // Llamada a firebase para crear el usuario
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val result = auth.createUserWithEmailAndPassword(user.email, password).await()
             result.user?.let { firebaseUser ->
                 // Datos de usuario adicionales
                 val newUser = User(
                     id = firebaseUser.uid,
-                    email = email,
-                    name = name,
-                    escomId = if (userType == "ESCOMunidad") escomId else null,
-                    userType = userType
+                    email = user.email,
+                    name = user.name,
+                    escomId = if (user.userType == "ESCOMunidad") user.escomId else null,
+                    userType = user.userType
                 )
                 db.collection("users").document(newUser.id).set(newUser).await()
 

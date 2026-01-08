@@ -157,9 +157,9 @@ fun AddMotorcycleDialog(
     onDismiss: () -> Unit,
     onConfirm: (brand: String, model: String, licensePlate: String, imageUri: Uri) -> Unit
 ) {
-    var brand by remember { mutableStateOf("Yamaha") }
-    var model by remember { mutableStateOf("R-301") }
-    var licensePlate by remember { mutableStateOf("ABC-1234") }
+    var brand by remember { mutableStateOf("") }
+    var model by remember { mutableStateOf("") }
+    var licensePlate by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     var brandError by remember { mutableStateOf(false) }
@@ -417,7 +417,7 @@ fun AddMotorcycleDialog(
                                 }
                             },
                             label = { Text("Placas") },
-                            placeholder = { Text("Ej: ABC-123") },
+                            placeholder = { Text("Ej: ABC123") },
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Info,
@@ -519,7 +519,7 @@ fun AddMotorcycleDialog(
                                     .scale(confirmScale),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
+                                    containerColor = Color(0xFF7B68EE)
                                 )
                             ) {
                                 Icon(

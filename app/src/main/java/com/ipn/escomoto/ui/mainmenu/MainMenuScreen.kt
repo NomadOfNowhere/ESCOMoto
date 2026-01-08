@@ -114,7 +114,17 @@ fun MainMenuScreen(
                                 imageUrl = ""
                             ), imageUri = imageUri
                         )
-                    }
+                    },
+                    onUpdateMotorcycle = { moto, brand, model, plate, uri ->
+                        viewModel.updateMotorcycle(moto,
+                            newBrand = brand,
+                            newModel = model,
+                            newPlate = plate,
+                            newImageUri = uri)
+                    },
+                    onDeleteMotorcycle = { motoId ->
+                        viewModel.deleteMotorcycle(motoId)
+                    },
                 )
                 /*
                 0 -> HomeScreen(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,14 +32,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.ipn.escomoto.R
 
 @Composable
 fun MotorcycleCard(
     plate: String,
+    brand: String,
     model: String,
+    imageUrl: String,
     onClick: () -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
@@ -66,6 +73,7 @@ fun MotorcycleCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Contenedor de la imagen (60x60)
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -73,13 +81,48 @@ fun MotorcycleCard(
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    Icons.Default.DirectionsBike,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(32.dp)
-                )
+                // 2. Lógica de visualización
+                if (imageUrl.isNotEmpty()) {
+                    // Si hay URL, mostramos la foto
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Foto de $model",
+                        contentScale = ContentScale.Crop, // Recorta para llenar el cuadro
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    // Si NO hay URL, mostramos el ícono original
+                    Icon(
+                        Icons.Default.DirectionsBike,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
+//            Box(
+//                modifier = Modifier
+//                    .size(60.dp)
+//                    .clip(RoundedCornerShape(12.dp))
+//                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+//                contentAlignment = Alignment.Center
+//            ) {
+//
+//                Icon(
+//                    Icons.Default.DirectionsBike,
+//                    contentDescription = null,
+//                    tint = MaterialTheme.colorScheme.primary,
+//                    modifier = Modifier.size(32.dp)
+//                )
+//
+//                androidx.compose.foundation.Image(
+//                    painter = painterResource(id = R.drawable.logo), // Reemplaza con el nombre de tu archivo
+//                    contentDescription = "Logo ESCOMoto",
+//                    modifier = Modifier
+//                        .size(150.dp) // Ajusta el tamaño según necesites
+//                        .clip(RoundedCornerShape(16.dp)) // Opcional: si quieres redondear esquinas
+//                )
+//            }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -89,7 +132,7 @@ fun MotorcycleCard(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = model,
+                    text = brand + " " + model,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.outline
                 )
