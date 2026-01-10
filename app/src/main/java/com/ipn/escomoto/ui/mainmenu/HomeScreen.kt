@@ -30,8 +30,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DirectionsBike
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.AlertDialog
@@ -71,7 +73,17 @@ import com.ipn.escomoto.ui.mainmenu.components.MotorcycleDetailDialog
 import com.ipn.escomoto.ui.mainmenu.components.PendingRequestCard
 import com.ipn.escomoto.ui.mainmenu.components.QuickActionCard
 import com.ipn.escomoto.ui.mainmenu.components.SelectMotorcycleDialog
-import com.ipn.escomoto.ui.mainmenu.components.SystemStatsCard
+import com.ipn.escomoto.ui.mainmenu.components.StatRow
+import com.ipn.escomoto.ui.mainmenu.components.StatCard
+import com.ipn.escomoto.ui.theme.PurplePrimary
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.ManageAccounts
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.TwoWheeler
+import com.ipn.escomoto.ui.theme.PurpleLight
+import com.ipn.escomoto.ui.theme.PurpleVariant
 
 @Composable
 fun HomeScreen(
@@ -305,11 +317,7 @@ fun HomeScreen(
             else {
                 // Lista de Tarjetas
                 items(pendingRequests, key = { it.id }) { request ->
-                    // AnimatedVisibility para que se vea bonito cuando aparecen/desaparecen
                     AnimatedVisibility(
-//                        visible = true,
-//                        enter = fadeIn() + expandVertically(),
-//                        exit = fadeOut() + shrinkVertically()
                         visible = true,
                         enter = fadeIn(animationSpec = tween(600, delayMillis = 400)) +
                                 slideInVertically(
@@ -353,9 +361,74 @@ fun HomeScreen(
                                 animationSpec = tween(600, delayMillis = 400)
                             )
                 ) {
-                    Column {
-                        SystemStatsCard()
-                        Spacer(modifier = Modifier.height(12.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            StatCard(
+                                label = "Admins",
+                                value = "3",
+                                icon = Icons.Default.Shield,
+                                containerColor = Color(0xFFE91E63),
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                label = "Supervisores",
+                                value = "12",
+                                icon = Icons.Default.ManageAccounts,
+                                containerColor = Color(0xFF9C27B0),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            StatCard(
+                                label = "ESCOMunidad",
+                                value = "124",
+                                icon = Icons.Default.School,
+                                containerColor = Color(0xFF3F51B5),
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                label = "Visitantes",
+                                value = "35",
+                                icon = Icons.Default.Badge,
+                                containerColor = Color(0xFF673AB7),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            StatCard(
+                                label = "Entradas hoy",
+                                value = "45",
+                                icon = Icons.Default.Login, // Entrada
+                                containerColor = Color(0xFF2E7D32),
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                label = "Salidas hoy",
+                                value = "38",
+                                icon = Icons.Default.Logout, // Salida
+                                containerColor = Color(0xFFEF6C00),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            StatCard(
+                                label = "Usuarios",
+                                value = "174",
+                                icon = Icons.Default.Groups, // Grupo de gente
+                                containerColor = Color(0xFF0097A7),
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                label = "Vehículos",
+                                value = "150",
+                                icon = Icons.Default.TwoWheeler,
+                                containerColor = Color(0xFF1976D2),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }

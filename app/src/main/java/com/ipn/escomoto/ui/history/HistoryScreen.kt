@@ -1,5 +1,6 @@
 package com.ipn.escomoto.ui.history
 
+import android.media.Image
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -40,7 +41,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FilterListOff
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.ipn.escomoto.ui.components.AnimatedChip
+import com.ipn.escomoto.ui.components.JumpRotateIcon
 import com.ipn.escomoto.ui.history.components.FilterInputDialog
 import com.ipn.escomoto.ui.history.components.HistoryItemCard
 import com.ipn.escomoto.ui.theme.PurplePrimary
@@ -225,14 +228,7 @@ fun HistoryScreen(
                             onClick = { showFilters = !showFilters }
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                AnimatedFilterIcon(showFilters)
-//                                Icon(
-//                                    imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
-//                                    contentDescription = "Mostrar/Ocultar Filtros",
-//                                    tint = if (showFilters) PurplePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-//                                    modifier = Modifier
-//                                        .size(24.dp)
-//                                )
+                                JumpRotateIcon(showOptions = showFilters)
                             }
                         }
                         AnimatedVisibility(
@@ -377,61 +373,4 @@ fun HistoryScreen(
             }
         }
     }
-}
-
-@Composable
-fun AnimatedFilterIcon(
-    showFilters: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val rotationAnim = remember { Animatable(0f) }
-    val translationAnim = remember { Animatable(0f) }
-
-    // Detectamos el click
-    LaunchedEffect(showFilters) {
-        // Lanzamos dos corrutinas en paralelo: subir/bajar y girar
-        // Animación de Salto (Sube y baja)
-        launch {
-            // Sube
-            translationAnim.animateTo(
-                targetValue = -10f, // Altura del salto
-                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
-            )
-            // Baja (regresa a 0)
-            translationAnim.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
-            )
-        }
-
-        // Animación de Giro (0 a 360°)
-        launch {
-            // Gira una vuelta completa
-            rotationAnim.animateTo(
-                targetValue = 360f,
-                animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing)
-            )
-            rotationAnim.snapTo(0f)
-        }
-    }
-
-    // Animación de color
-    val iconColor by animateColorAsState(
-        targetValue = if (showFilters) PurplePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(durationMillis = 600),
-        label = "iconColor"
-    )
-
-    Icon(
-        imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
-        contentDescription = "Mostrar/Ocultar Filtros",
-        tint = iconColor,
-        modifier = modifier
-            .size(24.dp)
-            .graphicsLayer {
-                translationY = translationAnim.value
-                rotationY = rotationAnim.value // Giro horizontal (3D)
-                cameraDistance = 12f * density // Mejora el efecto 3D
-            }
-    )
 }
