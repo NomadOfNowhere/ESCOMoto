@@ -63,10 +63,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ipn.escomoto.ui.components.AnimatedLoginButton
-import com.ipn.escomoto.ui.components.AnimatedPasswordField
-import com.ipn.escomoto.ui.components.AnimatedTextField
-import com.ipn.escomoto.ui.components.AnimatedUserTypeChip
+import com.ipn.escomoto.ui.auth.components.AnimatedLoginButton
+import com.ipn.escomoto.ui.auth.components.AnimatedPasswordField
+import com.ipn.escomoto.ui.auth.components.AnimatedTextField
+import com.ipn.escomoto.ui.auth.components.AnimatedUserTypeChip
 import com.ipn.escomoto.ui.theme.PurpleLight
 import com.ipn.escomoto.ui.theme.PurplePrimary
 import com.ipn.escomoto.ui.theme.TextHint

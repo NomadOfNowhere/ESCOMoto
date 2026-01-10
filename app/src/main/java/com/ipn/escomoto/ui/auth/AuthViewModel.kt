@@ -1,5 +1,6 @@
 package com.ipn.escomoto.ui.auth
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,7 +17,6 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
-
     var currentUser by mutableStateOf<User?>(null)
         private set
     var isUserLoggedIn by mutableStateOf(false)
@@ -114,6 +114,28 @@ class AuthViewModel @Inject constructor(
                 errorMessage = "Error de red: ${e.localizedMessage}"
             } finally {
                 isLoading = false
+            }
+        }
+    }
+
+    fun sendPasswordResetEmail(email: String, onSuccess: () -> Unit) {
+        if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            errorMessage = "Ingresa un correo válido"
+            return
+        }
+
+        isLoading = true
+        errorMessage = null
+
+        viewModelScope.launch {
+            val result = authRepository.sendPasswordResetEmail(email)
+
+            result.onSuccess {
+                isLoading = false
+                onSuccess()
+            }.onFailure { e ->
+                isLoading = false
+                errorMessage = e.localizedMessage ?: "Error al enviar el correo"
             }
         }
     }

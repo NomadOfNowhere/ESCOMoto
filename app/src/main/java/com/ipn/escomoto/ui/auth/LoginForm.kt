@@ -18,10 +18,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -44,22 +41,24 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ipn.escomoto.ui.components.AnimatedLoginButton
-import com.ipn.escomoto.ui.components.AnimatedPasswordField
-import com.ipn.escomoto.ui.components.AnimatedTextField
+import com.ipn.escomoto.ui.auth.components.AnimatedLoginButton
+import com.ipn.escomoto.ui.auth.components.AnimatedPasswordField
+import com.ipn.escomoto.ui.auth.components.AnimatedTextField
 import com.ipn.escomoto.ui.theme.PurpleLight
 import com.ipn.escomoto.ui.theme.PurplePrimary
 import com.ipn.escomoto.ui.theme.TextHint
 import com.ipn.escomoto.ui.theme.TextHintLight
 import com.ipn.escomoto.ui.theme.TextSecondary
 import com.ipn.escomoto.ui.theme.TextSecondaryLight
+import com.ipn.escomoto.ui.auth.components.ForgotPasswordDialog
 
 @Composable
 fun LoginForm(
     isLoading: Boolean,
-    errorMessage: String?,
+    errorMessage: String? = null,
     onLoginClick: (String, String) -> Unit,  // Pasamos email y password
-    onSwitchToRegister: () -> Unit
+    onSwitchToRegister: () -> Unit,
+    onForgotPassword: (String) -> Unit
 ) {
     // Estados locales
     var email by remember { mutableStateOf("") }
@@ -67,6 +66,17 @@ fun LoginForm(
     var passwordVisible by remember { mutableStateOf(false) }
     val isDarkTheme = isSystemInDarkTheme()
     val focusManager = LocalFocusManager.current
+    var showForgotDialog by remember { mutableStateOf(false) }
+
+    if (showForgotDialog) {
+        ForgotPasswordDialog(
+            onDismiss = { showForgotDialog = false },
+            onConfirm = { emailRecovery ->
+                onForgotPassword(emailRecovery)
+                showForgotDialog = false
+            }
+        )
+    }
 
     /* Animaciones */
     // Estado para animación inicial
@@ -174,24 +184,24 @@ fun LoginForm(
                     .scale(forgotPasswordScale)
                     .clickable {
                         forgotPasswordScale = 0.95f
-                        /* Acción recuperar contraseña */
+                        showForgotDialog = true
                     }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-//            // Mensaje de Error
-//            if (errorMessage != null) {
-//                Text(
-//                    text = errorMessage,
-//                    color = MaterialTheme.colorScheme.error,
-//                    fontSize = 12.sp,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(bottom = 8.dp),
-//                    textAlign = TextAlign.Center
-//                )
-//            }
+            // Mensaje de Error
+            if (!errorMessage.isNullOrBlank()) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
 
             // Botón de inicio de sesión animado
             AnimatedLoginButton(

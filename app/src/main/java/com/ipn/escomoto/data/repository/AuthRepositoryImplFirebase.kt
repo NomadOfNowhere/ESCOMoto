@@ -14,13 +14,21 @@ import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.ipn.escomoto.domain.model.AccessRequest
+import com.ipn.escomoto.domain.model.StatusType
+import com.ipn.escomoto.domain.repository.AccessRepository
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 @Singleton
 class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db = Firebase.firestore
     private val storageRef = FirebaseStorage.getInstance().reference
-
 
     override suspend fun login(email: String, pass: String): Result<User> {
         return try {
@@ -139,6 +147,15 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
             Log.d("USER_DEBUG", userId + " " + newUrl)
             db.document(userId).update("imageUrl", newUrl).await()
 
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

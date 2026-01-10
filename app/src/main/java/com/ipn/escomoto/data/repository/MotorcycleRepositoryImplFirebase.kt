@@ -30,10 +30,23 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
             Result.failure(e)
         }
     }
-    override suspend fun update(moto: Motorcycle): Result<Unit> {
+
+    override suspend fun update(moto: Motorcycle, hasNewImage: Boolean): Result<Unit> {
         return try {
             // Buscamos el documento con su ID y actualizamos datos
-            db.document(moto.id).set(moto).await()
+            val docRef = db.document(moto.id)
+
+            // Eliminamos foto si hay una nueva
+            if(hasNewImage) {
+                try {
+                    val imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(moto.imageUrl)
+                    imageRef.delete().await()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            docRef.set(moto).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -43,7 +56,6 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
     override suspend fun updateImageUrl(motoId: String, newUrl: String): Result<Unit> {
         return try {
             // Buscamos el documento con su ID y actualizamos datos
-            Log.d("DEBUG_MOTO", motoId + " " + newUrl)
             db.document(motoId).update("imageUrl", newUrl).await()
 
             Result.success(Unit)

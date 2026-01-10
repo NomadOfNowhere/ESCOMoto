@@ -1,6 +1,5 @@
 package com.ipn.escomoto.domain.model
 
-import android.net.Uri
 import android.util.Log
 
 data class Motorcycle(

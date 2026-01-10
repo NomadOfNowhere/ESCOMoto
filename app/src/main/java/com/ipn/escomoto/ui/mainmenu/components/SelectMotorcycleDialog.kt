@@ -35,6 +35,7 @@ import com.ipn.escomoto.ui.theme.*
 @Composable
 fun SelectMotorcycleDialog(
     motorcycles: List<Motorcycle>,
+    isProcessing: Boolean = false,
     onDismiss: () -> Unit,
     onMotoSelected: (Motorcycle) -> Unit
 ) {
@@ -148,24 +149,21 @@ fun SelectMotorcycleDialog(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     // Lista de motocicletas
-                    if (motorcycles.isEmpty()) {
-                        EmptyMotorcycleState()
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.weight(1f, fill = false),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            itemsIndexed(motorcycles) { index, moto ->
-                                AnimatedMotorcycleItem(
-                                    motorcycle = moto,
-                                    index = index,
-                                    onClick = {
-                                        isVisible = false
-                                        onMotoSelected(moto)
-                                    },
-                                    isDarkTheme = isDarkTheme
-                                )
-                            }
+                    LazyColumn(
+                        modifier = Modifier.weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        itemsIndexed(motorcycles) { index, moto ->
+                            MotorcycleCard(
+                                moto = moto,
+                                isProcessingCard = isProcessing,
+                                index = index,
+                                animation = true,
+                                onClick = {
+                                    isVisible = false
+                                    onMotoSelected(moto)
+                                }
+                            )
                         }
                     }
 
@@ -194,179 +192,27 @@ fun SelectMotorcycleDialog(
     }
 }
 
-@Composable
-fun AnimatedMotorcycleItem(
-    motorcycle: Motorcycle,
-    index: Int,
-    onClick: () -> Unit,
-    isDarkTheme: Boolean
-) {
-    var isVisible by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
 
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(index * 50L)
-        isVisible = true
-    }
-
-    val offsetX by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else 50.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "item_offset"
-    )
-
-    val alpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 400),
-        label = "item_alpha"
-    )
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "item_scale"
-    )
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .offset(x = offsetX)
-            .scale(scale)
-            .graphicsLayer { this.alpha = alpha }
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null
-            ) { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDarkTheme) {
-                Color(0xFF252538)
-            } else {
-                Color(0xFFF0F2FF)
-            }
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isDarkTheme) 0.dp else 1.dp
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Ícono de la moto con fondo
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                PurplePrimary.copy(alpha = 0.2f),
-                                PurpleLight.copy(alpha = 0.2f)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.DirectionsBike,
-                    contentDescription = null,
-                    tint = PurplePrimary,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Información de la moto
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = motorcycle.model,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = PurplePrimary.copy(alpha = 0.15f)
-                    ) {
-                        Text(
-                            text = motorcycle.licensePlate,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = PurplePrimary,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-
-            // Indicador visual
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(GreenAccent)
-            )
-        }
-    }
-}
-
-@Composable
-fun EmptyMotorcycleState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(RoundedCornerShape(40.dp))
-                .background(
-                    if (isSystemInDarkTheme()) {
-                        Color(0xFF252538)
-                    } else {
-                        Color(0xFFF0F2FF)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                Icons.Default.DirectionsBike,
-                contentDescription = null,
-                tint = if (isSystemInDarkTheme()) TextSecondary else TextSecondaryLight,
-                modifier = Modifier.size(40.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "No hay motocicletas",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Text(
-            text = "Primero registra una motocicleta\npara poder hacer check-in",
-            fontSize = 14.sp,
-            color = if (isSystemInDarkTheme()) TextSecondary else TextSecondaryLight,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-    }
-}
+//Column(modifier = Modifier.weight(1f)) {
+//    Text(
+//        text = motorcycle.model,
+//        fontSize = 16.sp,
+//        fontWeight = FontWeight.Bold,
+//        color = MaterialTheme.colorScheme.onSurface
+//    )
+//    Spacer(modifier = Modifier.height(4.dp))
+//    Row(verticalAlignment = Alignment.CenterVertically) {
+//        Surface(
+//            shape = RoundedCornerShape(6.dp),
+//            color = PurplePrimary.copy(alpha = 0.15f)
+//        ) {
+//            Text(
+//                text = motorcycle.licensePlate,
+//                fontSize = 13.sp,
+//                fontWeight = FontWeight.Medium,
+//                color = PurplePrimary,
+//                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+//            )
+//        }
+//    }
+//}

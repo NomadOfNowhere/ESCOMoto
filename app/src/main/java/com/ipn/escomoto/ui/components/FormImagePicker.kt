@@ -57,6 +57,7 @@ import coil.compose.AsyncImage
 @Composable
 fun FormImagePicker(
     imageUri: Uri?,
+    currentImageUrl: String? = null,
     onImageSelected: (Uri) -> Unit,
     errorMessage: String? = null
 ) {
@@ -86,27 +87,38 @@ fun FormImagePicker(
         border = if (errorMessage != null) BorderStroke(2.dp, MaterialTheme.colorScheme.error) else null
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            if (imageUri != null) {
+            val modelToShow = imageUri ?: currentImageUrl
+            if (modelToShow != null && modelToShow.toString().isNotEmpty()) {
+                // Imágen actual
                 AsyncImage(
-                    model = imageUri,
-                    contentDescription = null,
+                    model = modelToShow,
+                    contentDescription = "Foto de la moto",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
                 // Overlay de edición
                 Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.Edit, null, tint = Color.White)
-                        Text("Cambiar", color = Color.White)
+                        Text("Cambiar foto", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
+                // Placeholder si no hay ninguna imágen
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.AddAPhoto, null, tint = MaterialTheme.colorScheme.primary)
-                    Text("Toca para agregar", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(
+                        Icons.Default.AddAPhoto,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Toca para agregar foto", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

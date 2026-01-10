@@ -32,14 +32,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ipn.escomoto.ui.components.LogoSection
+import com.ipn.escomoto.ui.auth.components.LogoSection
 import com.ipn.escomoto.ui.theme.BackgroundGradientEnd
 import com.ipn.escomoto.ui.theme.BackgroundGradientEndLight
 import com.ipn.escomoto.ui.theme.BackgroundGradientStart
 import com.ipn.escomoto.ui.theme.BackgroundGradientStartLight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ipn.escomoto.domain.model.User
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 
 @Composable
 fun AuthScreen(
@@ -52,6 +53,8 @@ fun AuthScreen(
     /* Animaciones */
     // Estado para controlar la animación inicial
     var isVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     // Iniciar animaciones cuando se monta el componente
     LaunchedEffect(Unit) {
@@ -131,7 +134,16 @@ fun AuthScreen(
                         onLoginClick = { email, pass ->
                             viewModel.login(email, pass, onLoginSuccess)
                         },
-                        onSwitchToRegister = { isLogin = false }
+                        onSwitchToRegister = { isLogin = false },
+                        onForgotPassword = { email ->
+                            viewModel.sendPasswordResetEmail(email) {
+                                Toast.makeText(
+                                    context,
+                                    "Correo enviado. Revisa tu bandeja.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
                     )
                 } else {
                     RegisterForm(

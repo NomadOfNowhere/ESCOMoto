@@ -56,7 +56,7 @@ fun MotorcycleDetailDialog(
                 .padding(vertical = 16.dp)
         ) {
             Column {
-                // 1. IMAGEN DE CABECERA
+                // IMAGEN DE CABECERA
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

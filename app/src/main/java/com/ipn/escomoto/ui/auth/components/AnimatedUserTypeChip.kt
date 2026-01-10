@@ -1,4 +1,4 @@
-package com.ipn.escomoto.ui.components
+package com.ipn.escomoto.ui.auth.components
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState

@@ -33,8 +33,6 @@ fun EditMotorcycleDialog(
         if (model.isBlank()) newErrors["model"] = "El modelo es requerido"
         if (plate.isBlank()) newErrors["plate"] = "Las placas son requeridas"
 
-        // NOTA: No validamos imagen aquí. Si es null, usamos la vieja.
-
         if (newErrors.isEmpty()) {
             onConfirm(brand, model, plate, imageUri)
         } else {
@@ -49,17 +47,14 @@ fun EditMotorcycleDialog(
         onConfirm = { validateAndSubmit() },
         confirmText = "Guardar"
     ) {
-        // --- Selector de Imagen Inteligente ---
-        // Si no se ha elegido nueva imagen (imageUri == null), mostramos un texto indicando que hay una actual
+        // Selector de imágen
         FormImagePicker(
             imageUri = imageUri,
-            onImageSelected = {
-                imageUri = it
+            currentImageUrl = motorcycle.imageUrl,
+            onImageSelected = { uri ->
+                imageUri = uri
             },
-            // Hack visual: Si no hay URI nueva, pasamos un error null,
-            // pero podrías modificar FormImagePicker para mostrar la URL vieja.
-            // Por simplicidad, aquí solo mostramos el picker estándar.
-            errorMessage = null
+            errorMessage = errors["image"]
         )
 
         FormTextField(

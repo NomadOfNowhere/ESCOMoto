@@ -2,13 +2,14 @@ package com.ipn.escomoto.domain.model
 
 import java.util.Date
 
-data class AccessLog (
+data class AccessRequest (
     val id: String = "",
     val userId: String = "",
     val userName: String = "",
     val motorcycleId: String = "",
-    val licensePlate: String = "",
-    val model: String = "",
+    val motorcyclePlate: String = "",
+    val motorcycleImgUrl: String? = null,
     val type: AccessType = AccessType.ENTRY,
+    val status: StatusType = StatusType.PENDING,
     val timestamp: Date = Date()
 )

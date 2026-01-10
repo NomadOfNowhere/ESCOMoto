@@ -1,5 +1,6 @@
 package com.ipn.escomoto.ui.mainmenu.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,33 +41,82 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ipn.escomoto.R
+import com.ipn.escomoto.domain.model.Motorcycle
+import kotlinx.coroutines.delay
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MotorcycleCard(
-    plate: String,
-    brand: String,
-    model: String,
-    imageUrl: String,
+    moto: Motorcycle,
+    isProcessingCard: Boolean = false,
+    index: Int = 0,
+    animation: Boolean = true,
     onClick: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    var isVisible by remember { mutableStateOf(!animation) }
     var pressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.98f else 1f,
+    val scale = remember { Animatable(1f) }
+
+    LaunchedEffect(Unit) {
+        if (animation) {
+            delay(index * 100L)
+            isVisible = true
+        }
+    }
+
+    LaunchedEffect(isProcessingCard) {
+        if (!isProcessingCard) {
+            scale.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+            pressed = false
+        }
+    }
+
+    val offsetX by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else 50.dp,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "scale",
-        finishedListener = { pressed = false }
+        label = "entry_offset"
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(500),
+        label = "entry_alpha"
     )
 
     Card(
         onClick = {
-            pressed = true
-            onClick()
+            scope.launch {
+                pressed = true
+                scale.animateTo(
+                    targetValue = 0.85f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+                onClick()
+            }
         },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .scale(scale)
+            .offset(x = offsetX)
+            .graphicsLayer { this.alpha = alpha }
+            .scale(scale.value)
     ) {
         Row(
             modifier = Modifier
@@ -81,12 +132,12 @@ fun MotorcycleCard(
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
-                // 2. Lógica de visualización
-                if (imageUrl.isNotEmpty()) {
+                // Lógica de visualización
+                if (moto.imageUrl.isNotEmpty()) {
                     // Si hay URL, mostramos la foto
                     AsyncImage(
-                        model = imageUrl,
-                        contentDescription = "Foto de $model",
+                        model = moto.imageUrl,
+                        contentDescription = "Foto de $moto.model",
                         contentScale = ContentScale.Crop, // Recorta para llenar el cuadro
                         modifier = Modifier.fillMaxSize()
                     )
@@ -100,39 +151,16 @@ fun MotorcycleCard(
                     )
                 }
             }
-//            Box(
-//                modifier = Modifier
-//                    .size(60.dp)
-//                    .clip(RoundedCornerShape(12.dp))
-//                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
-//                contentAlignment = Alignment.Center
-//            ) {
-//
-//                Icon(
-//                    Icons.Default.DirectionsBike,
-//                    contentDescription = null,
-//                    tint = MaterialTheme.colorScheme.primary,
-//                    modifier = Modifier.size(32.dp)
-//                )
-//
-//                androidx.compose.foundation.Image(
-//                    painter = painterResource(id = R.drawable.logo), // Reemplaza con el nombre de tu archivo
-//                    contentDescription = "Logo ESCOMoto",
-//                    modifier = Modifier
-//                        .size(150.dp) // Ajusta el tamaño según necesites
-//                        .clip(RoundedCornerShape(16.dp)) // Opcional: si quieres redondear esquinas
-//                )
-//            }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = plate,
+                    text = moto.licensePlate,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = brand + " " + model,
+                    text = moto.brand + " " + moto.model,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.outline
                 )
