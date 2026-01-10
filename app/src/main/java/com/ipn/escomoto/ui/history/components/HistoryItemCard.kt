@@ -1,4 +1,4 @@
-package com.ipn.escomoto.ui.history
+package com.ipn.escomoto.ui.history.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

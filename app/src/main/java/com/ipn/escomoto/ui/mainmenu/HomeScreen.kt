@@ -189,7 +189,6 @@ fun HomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
-//            contentPadding = PaddingValues(bottom = 80.dp)
     )
     {
         item {

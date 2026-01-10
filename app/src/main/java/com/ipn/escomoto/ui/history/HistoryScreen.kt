@@ -1,41 +1,51 @@
 package com.ipn.escomoto.ui.history
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox // Importante
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TwoWheeler
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ipn.escomoto.utils.getEndOfDay
 import com.ipn.escomoto.utils.getStartOfDay
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.FilterListOff
+import androidx.compose.ui.graphics.graphicsLayer
+import com.ipn.escomoto.ui.components.AnimatedChip
+import com.ipn.escomoto.ui.history.components.FilterInputDialog
+import com.ipn.escomoto.ui.history.components.HistoryItemCard
+import com.ipn.escomoto.ui.theme.PurplePrimary
+import kotlinx.coroutines.launch
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
     userRole: String,
@@ -51,12 +61,24 @@ fun HistoryScreen(
     var showPlateDialog by remember { mutableStateOf(false) }
     var showUserDialog by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(false) }
+    var showFilters by remember { mutableStateOf(false) }
+
+    val rotation by animateFloatAsState(
+        targetValue = if (showFilters) 180f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "icon_rotation"
+    )
 
     // CARGA AUTOMÁTICA AL INICIAR LA PANTALLA
     LaunchedEffect(Unit) {
         if (logs.isEmpty()) { // Solo carga si está vacío para evitar recargas innecesarias al rotar
             viewModel.loadHistory(userRole, userId, filters)
         }
+        visible = true
     }
 
     // Diálogo de Rango de Fechas
@@ -121,7 +143,9 @@ fun HistoryScreen(
 
     // Diálogos de Texto (Matrícula y Usuario)
     if (showPlateDialog) {
-        FilterInputDialog(title = "Filtrar por Matrícula", onDismiss = { showPlateDialog = false }) { text ->
+        FilterInputDialog(
+            title = "Filtrar por Matrícula",
+            onDismiss = { showPlateDialog = false }) { text ->
             val newFilter = filters.copy(licensePlate = text)
             viewModel.updateFilter(newFilter)
             viewModel.loadHistory(userRole, userId, newFilter)
@@ -130,7 +154,9 @@ fun HistoryScreen(
     }
 
     if (showUserDialog) {
-        FilterInputDialog(title = "Filtrar por ID de Usuario", onDismiss = { showUserDialog = false }) { text ->
+        FilterInputDialog(
+            title = "Filtrar por ID de Usuario",
+            onDismiss = { showUserDialog = false }) { text ->
             val newFilter = filters.copy(userId = text)
             viewModel.updateFilter(newFilter)
             viewModel.loadHistory(userRole, userId, newFilter)
@@ -138,99 +164,274 @@ fun HistoryScreen(
         }
     }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Historial") }) }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-
-            // BARRA DE FILTROS
-            LazyRow(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Filtro Fecha
-                item {
-                    FilterChip(
-                        selected = filters.startDate != null,
-                        onClick = { showDatePicker = true },
-                        label = { Text("Fecha") },
-                        leadingIcon = { Icon(Icons.Default.CalendarToday, null) },
-                        trailingIcon = if (filters.startDate != null) {
-                            {
-                                IconButton(onClick = {
-                                    val newFilter = filters.copy(startDate = null, endDate = null)
-                                    viewModel.updateFilter(newFilter)
-                                    viewModel.loadHistory(userRole, userId, newFilter)
-                                }, modifier = Modifier.size(16.dp)) { Icon(Icons.Default.Close, null) }
-                            }
-                        } else null
-                    )
-                }
-
-                // Filtro Matrícula
-                item {
-                    FilterChip(
-                        selected = !filters.licensePlate.isNullOrEmpty(),
-                        onClick = { showPlateDialog = true },
-                        label = { Text(if (!filters.licensePlate.isNullOrEmpty()) filters.licensePlate!! else "Matrícula") },
-                        leadingIcon = { Icon(Icons.Default.TwoWheeler, null) },
-                        trailingIcon = if (!filters.licensePlate.isNullOrEmpty()) {
-                            {
-                                IconButton(onClick = {
-                                    val newFilter = filters.copy(licensePlate = null)
-                                    viewModel.updateFilter(newFilter)
-                                    viewModel.loadHistory(userRole, userId, newFilter)
-                                }, modifier = Modifier.size(16.dp)) { Icon(Icons.Default.Close, null) }
-                            }
-                        } else null
-                    )
-                }
-
-                // Filtro Usuario (Solo Admin)
-                if (userRole != "ESCOMunidad" && userRole != "Visitante") {
-                    item {
-                        FilterChip(
-                            selected = !filters.userId.isNullOrEmpty(),
-                            onClick = { showUserDialog = true },
-                            label = { Text("Usuario") },
-                            leadingIcon = { Icon(Icons.Default.Person, null) },
-                            trailingIcon = if (!filters.userId.isNullOrEmpty()) {
-                                {
-                                    IconButton(onClick = {
-                                        val newFilter = filters.copy(userId = null)
-                                        viewModel.updateFilter(newFilter)
-                                        viewModel.loadHistory(userRole, userId, newFilter)
-                                    }, modifier = Modifier.size(16.dp)) { Icon(Icons.Default.Close, null) }
-                                }
-                            } else null
+    PullToRefreshBox(
+        modifier = modifier
+            .fillMaxSize(),
+        isRefreshing = isLoading,
+        onRefresh = { viewModel.loadHistory(userRole, userId, filters) }
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+//                .padding(16.dp)
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // HEADER
+            item {
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(600)) +
+                            slideInVertically(initialOffsetY = { -40 })
+                ) {
+                    Column {
+                        Text(
+                            text = "Historial de actividad",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Aquí verás tu historial de check-in y check-out",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.outline
                         )
                     }
                 }
             }
 
-            // LISTA CON PULL TO REFRESH
-            PullToRefreshBox(
-                modifier = Modifier.fillMaxSize(),
-                isRefreshing = isLoading,
-                onRefresh = { viewModel.loadHistory(userRole, userId, filters) }
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            // BARRA DE FILTROS
+            item {
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
+                            slideInVertically(
+                                initialOffsetY = { 50 },
+                                animationSpec = tween(600, delayMillis = 200)
+                            )
                 ) {
-                    if (!isLoading && logs.isEmpty()) {
-                        item {
-                            Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("No se encontraron registros.", color = Color.Gray)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = if (showFilters) PurplePrimary.copy(alpha = 0.1f) else Color.Transparent,
+                            modifier = Modifier.size(48.dp),
+                            onClick = { showFilters = !showFilters }
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                AnimatedFilterIcon(showFilters)
+//                                Icon(
+//                                    imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
+//                                    contentDescription = "Mostrar/Ocultar Filtros",
+//                                    tint = if (showFilters) PurplePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+//                                    modifier = Modifier
+//                                        .size(24.dp)
+//                                )
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = showFilters,
+                            enter = expandHorizontally(
+                                expandFrom = Alignment.Start,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                )
+                            ) + fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    delayMillis = 50,
+                                    easing = LinearOutSlowInEasing
+                                )
+                            ),
+                            exit = shrinkHorizontally(
+                                shrinkTowards = Alignment.Start,
+                                animationSpec = tween(
+                                    durationMillis = 250,
+                                    easing = FastOutLinearInEasing
+                                )
+                            ) + fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 200,
+                                    easing = LinearOutSlowInEasing
+                                )
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            LazyRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                // Filtro Fecha
+                                item {
+                                    AnimatedChip(
+                                        selected = filters.startDate != null,
+                                        onClick = { showDatePicker = true },
+                                        label = "Fecha",
+                                        icon = Icons.Default.CalendarToday,
+                                        onClear = if (filters.startDate != null) {
+                                            {
+                                                val newFilter = filters.copy(startDate = null, endDate = null)
+                                                viewModel.updateFilter(newFilter)
+                                                viewModel.loadHistory(userRole, userId, newFilter)
+                                            }
+                                        } else null,
+                                        index = 0,
+                                        showFilters = showFilters
+                                    )
+                                }
+                                // Filtro Matrícula
+                                item {
+                                    AnimatedChip(
+                                        selected = !filters.licensePlate.isNullOrEmpty(),
+                                        onClick = { showPlateDialog = true },
+                                        label = if (!filters.licensePlate.isNullOrEmpty()) filters.licensePlate!! else "Matrícula",
+                                        icon = Icons.Default.TwoWheeler,
+                                        onClear = if (!filters.licensePlate.isNullOrEmpty()) {
+                                            {
+                                                val newFilter = filters.copy(licensePlate = null)
+                                                viewModel.updateFilter(newFilter)
+                                                viewModel.loadHistory(userRole, userId, newFilter)
+                                            }
+                                        } else null,
+                                        index = 1,
+                                        showFilters = showFilters
+                                    )
+                                }
+                                // Filtro Usuario
+                                if (userRole != "ESCOMunidad" && userRole != "Visitante") {
+                                        item {
+                                            AnimatedChip(
+                                                selected = !filters.userId.isNullOrEmpty(),
+                                                onClick = { showUserDialog = true },
+                                                label = "Usuario",
+                                                icon = Icons.Default.Person,
+                                                onClear = if (!filters.userId.isNullOrEmpty()) {
+                                                    {
+                                                        val newFilter = filters.copy(userId = null)
+                                                        viewModel.updateFilter(newFilter)
+                                                        viewModel.loadHistory(userRole, userId, newFilter)
+                                                    }
+                                                } else null,
+                                                index = 2,
+                                                showFilters = showFilters
+                                            )
+                                        }
+                                }
                             }
                         }
                     }
-                    items(logs) { log ->
-                        HistoryItemCard(log)
+                }
+            }
+
+            // ESTADO VACÍO
+            if (!isLoading && logs.isEmpty()) {
+                item {
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(animationSpec = tween(600, delayMillis = 300))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp), // Altura fija para centrar visualmente
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No se encontraron registros.", color = Color.Gray)
+                        }
+                    }
+                }
+            }
+
+            // LISTA DE LOGS
+            items(
+                items = logs,
+                key = { it.id.ifEmpty { it.hashCode().toString() } }
+            ) { log ->
+                Column(modifier = Modifier.offset(y = (-8).dp)) {
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(animationSpec = tween(600, delayMillis = 400)) +
+                                slideInVertically(
+                                    initialOffsetY = { 50 },
+                                    animationSpec = tween(600, delayMillis = 400)
+                                )
+                    ) {
+                        Column {
+                            HistoryItemCard(log)
+//                            MotorcycleCard(
+//                                moto = moto,
+//                                isProcessingCard = showDetailDialog,
+//                                onClick = { selectedMotorcycle = moto }
+//                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun AnimatedFilterIcon(
+    showFilters: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val rotationAnim = remember { Animatable(0f) }
+    val translationAnim = remember { Animatable(0f) }
+
+    // Detectamos el click
+    LaunchedEffect(showFilters) {
+        // Lanzamos dos corrutinas en paralelo: subir/bajar y girar
+        // Animación de Salto (Sube y baja)
+        launch {
+            // Sube
+            translationAnim.animateTo(
+                targetValue = -10f, // Altura del salto
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+            )
+            // Baja (regresa a 0)
+            translationAnim.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+            )
+        }
+
+        // Animación de Giro (0 a 360°)
+        launch {
+            // Gira una vuelta completa
+            rotationAnim.animateTo(
+                targetValue = 360f,
+                animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing)
+            )
+            rotationAnim.snapTo(0f)
+        }
+    }
+
+    // Animación de color
+    val iconColor by animateColorAsState(
+        targetValue = if (showFilters) PurplePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(durationMillis = 600),
+        label = "iconColor"
+    )
+
+    Icon(
+        imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
+        contentDescription = "Mostrar/Ocultar Filtros",
+        tint = iconColor,
+        modifier = modifier
+            .size(24.dp)
+            .graphicsLayer {
+                translationY = translationAnim.value
+                rotationY = rotationAnim.value // Giro horizontal (3D)
+                cameraDistance = 12f * density // Mejora el efecto 3D
+            }
+    )
 }

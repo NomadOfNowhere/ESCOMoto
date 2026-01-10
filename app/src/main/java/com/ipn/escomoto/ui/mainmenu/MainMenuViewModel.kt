@@ -49,8 +49,6 @@ class MainMenuViewModel @Inject constructor(
         private set
     var currentAccessRequest by mutableStateOf<AccessRequest?>(null)
         private set
-    var historyLogs by mutableStateOf<List<AccessRequest>>(emptyList())
-        private set
 
     // Flujo para supervisor
     val pendingRequests = accessRepository.getPendingRequests()

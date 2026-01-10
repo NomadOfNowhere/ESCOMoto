@@ -38,21 +38,19 @@ fun BottomNavigationBar(
             )
         )
 
-        if (userType != "Administrador") {
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.DirectionsBike, contentDescription = "Actividad") },
-                label = { Text("Actividad", fontSize = 12.sp) },
-                selected = selectedTab == 1,
-                onClick = { onTabSelected(1) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                    unselectedIconColor = MaterialTheme.colorScheme.outline,
-                    unselectedTextColor = MaterialTheme.colorScheme.outline
-                )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.DirectionsBike, contentDescription = "Actividad") },
+            label = { Text("Actividad", fontSize = 12.sp) },
+            selected = selectedTab == 1,
+            onClick = { onTabSelected(1) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                unselectedIconColor = MaterialTheme.colorScheme.outline,
+                unselectedTextColor = MaterialTheme.colorScheme.outline
             )
-        }
+        )
 
         NavigationBarItem(
             icon = { Icon(Icons.Default.Apps, contentDescription = "Servicios") },
