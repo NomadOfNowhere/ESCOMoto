@@ -27,15 +27,16 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val db = Firebase.firestore
+    private val firestore = Firebase.firestore
     private val storageRef = FirebaseStorage.getInstance().reference
+    private val usersColl = firestore.collection("users")
 
     override suspend fun login(email: String, pass: String): Result<User> {
         return try {
             val authResult = auth.signInWithEmailAndPassword(email, pass).await()
             val uid = authResult.user?.uid ?: return Result.failure(Exception("Usuario no encontrado"))
 
-            val document = db.collection("users").document(uid).get().await()
+            val document = usersColl.document(uid).get().await()
 
             if (document.exists()) {
                 val user = document.toObject(User::class.java)
@@ -48,7 +49,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
                 Result.success(mapToDomain(authResult.user!!))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -57,30 +59,27 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
         password: String
     ): Result<User> {
         return try {
-            // Llamada a firebase para crear el usuario
+            // Llamada a fireauth para crear el usuario
             val result = auth.createUserWithEmailAndPassword(user.email, password).await()
             result.user?.let { firebaseUser ->
                 // Datos de usuario adicionales
-                val newUser = User(
-                    id = firebaseUser.uid,
-                    email = user.email,
-                    name = user.name,
-                    escomId = if (user.userType == "ESCOMunidad") user.escomId else null,
-                    userType = user.userType
-                )
-                db.collection("users").document(newUser.id).set(newUser).await()
+                val newUser = user.copy(id = firebaseUser.uid)
 
+                // Guardar en firebase
+                usersColl.document(newUser.id).set(newUser).await()
                 Result.success(newUser)
             } ?: Result.failure(Exception("Error al crear usuario"))
         } catch (e: Exception) {
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
     override suspend fun getEmailByEscomId(escomId: String): Result<String> {
         return try {
-            val query = db.collection("users")
+            val query = usersColl
                 .whereEqualTo("escomId", escomId)
+                .limit(1)
                 .get()
                 .await()
 
@@ -89,10 +88,11 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
                 Result.success(email)
             }
             else {
-                Result.failure(Exception("No se encontró ningún usuario con ese ESCOMunidad ID"))
+                Result.failure(Exception("No existe ninguna cuenta asociada a este número de boleta/empleado."))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -100,21 +100,19 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
         val firebaseUser = auth.currentUser ?: return Result.failure(Exception(""))
 
         return try {
-            val document = db.collection("users").document(firebaseUser.uid).get().await()
+            val document = usersColl.document(firebaseUser.uid).get().await()
 
             if (document.exists()) {
                 val user = document.toObject(User::class.java)
-                if (user != null) {
-                    Result.success(user)
-                } else {
-                    Result.failure(Exception("Error al convertir los datos del usuario"))
-                }
+                if (user != null) Result.success(user)
+                else Result.failure(Exception("Error al leer datos del usuario"))
             } else {
                 // Existe en Auth pero no en Firestore
                 Result.success(mapToDomain(firebaseUser))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -137,19 +135,20 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
             Result.success(downloadUrl)
         } catch (e: Exception) {
             e.printStackTrace()
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception("Error al subir imagen: ${e.localizedMessage}"))
         }
     }
 
     override suspend fun updateImageUrl(userId: String, newUrl: String): Result<Unit> {
         return try {
             // Buscamos el documento con su ID y actualizamos datos
-            Log.d("USER_DEBUG", userId + " " + newUrl)
-            db.document(userId).update("imageUrl", newUrl).await()
-
+            Log.d("USER_DEBUG", "Actualizando foto para " + userId + " " + newUrl)
+            usersColl.document(userId).update("imageUrl", newUrl).await()
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -158,7 +157,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
             auth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+//            Result.failure(e)
+            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -167,7 +167,7 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
         return User(
             id = firebaseUser.uid,
             email = firebaseUser.email ?: "",
-            name = firebaseUser.displayName ?: "Usuario de ESCOMoto",
+            name = firebaseUser.displayName ?: "Usuario",
             userType = "Visitante",
             escomId = null
         )

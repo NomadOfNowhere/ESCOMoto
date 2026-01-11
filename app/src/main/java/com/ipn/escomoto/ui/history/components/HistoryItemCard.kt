@@ -194,7 +194,7 @@ fun HistoryItemCard(
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
-//                        MiniStatusIndicator(status = request.status, statusColor = statusColor)
+                        MiniStatusIndicator(status = request.status, statusColor = statusColor)
                     }
 
                     // Fecha y hora

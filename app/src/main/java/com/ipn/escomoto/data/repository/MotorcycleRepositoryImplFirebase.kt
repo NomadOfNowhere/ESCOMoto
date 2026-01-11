@@ -13,13 +13,13 @@ import java.util.UUID
 
 @Singleton
 class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleRepository{
-    private val db = FirebaseFirestore.getInstance().collection("motorcycles")
+    private val motorColl = FirebaseFirestore.getInstance().collection("motorcycles")
     private val storageRef = FirebaseStorage.getInstance().reference
 
     override suspend fun add(moto: Motorcycle): Result<Motorcycle> {
         return try {
             // Creamos un documento nuevo con ID automático
-            val docRef = db.document()
+            val docRef = motorColl.document()
             // Creamos una copia e inyectamos el ID
             val motoCopy = moto.copy(id = docRef.id)
 
@@ -34,7 +34,7 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
     override suspend fun update(moto: Motorcycle, hasNewImage: Boolean): Result<Unit> {
         return try {
             // Buscamos el documento con su ID y actualizamos datos
-            val docRef = db.document(moto.id)
+            val docRef = motorColl.document(moto.id)
 
             // Eliminamos foto si hay una nueva
             if(hasNewImage) {
@@ -56,7 +56,7 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
     override suspend fun updateImageUrl(motoId: String, newUrl: String): Result<Unit> {
         return try {
             // Buscamos el documento con su ID y actualizamos datos
-            db.document(motoId).update("imageUrl", newUrl).await()
+            motorColl.document(motoId).update("imageUrl", newUrl).await()
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -66,7 +66,7 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
 
     override suspend fun remove(motoId: String): Result<Unit> {
         return try {
-            val docRef = db.document(motoId)
+            val docRef = motorColl.document(motoId)
             val snapshot = docRef.get().await()
             val imageUrl = snapshot.getString("imageUrl")
 
@@ -89,7 +89,7 @@ class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleReposit
     override suspend fun getByOwner(ownerId: String): Result<List<Motorcycle>> {
         return try {
             // Buscamos documentos con ownerID
-            val snapshot = db.whereEqualTo("ownerId", ownerId).get().await()
+            val snapshot = motorColl.whereEqualTo("ownerId", ownerId).get().await()
             val motos = snapshot.toObjects(Motorcycle::class.java)
             Result.success(motos)
         } catch (e: Exception) {

@@ -1,12 +1,13 @@
 package com.ipn.escomoto.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,12 +16,13 @@ import com.ipn.escomoto.ui.auth.AuthViewModel
 import com.ipn.escomoto.ui.components.SplashScreen
 import com.ipn.escomoto.ui.mainmenu.MainMenuScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.ipn.escomoto.ui.MainViewModel
 import com.ipn.escomoto.ui.mainmenu.MainMenuViewModel
 
 @Composable
 fun AppNavigation(
     authViewModel: AuthViewModel = hiltViewModel(),
-    mainMenuViewModel: MainMenuViewModel = hiltViewModel()
+    mainMenuViewModel: MainMenuViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
     var isCheckingSession by remember { mutableStateOf(true) }

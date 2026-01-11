@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.ipn.escomoto.ui.navigation.AppNavigation
-import com.ipn.escomoto.ui.theme.ESCOMotoTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.ipn.escomoto.ui.theme.ESCOMotoTheme
 import dagger.hilt.android.AndroidEntryPoint
+import com.ipn.escomoto.ui.ESCOMotoAppRoot
 
 @AndroidEntryPoint   // Hilts entry point
 class MainActivity : ComponentActivity() {
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    ESCOMotoAppRoot()
                 }
             }
         }

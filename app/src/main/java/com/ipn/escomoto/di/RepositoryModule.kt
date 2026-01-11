@@ -4,10 +4,12 @@ import com.ipn.escomoto.data.repository.AccessRepositoryImplFirebase
 import com.ipn.escomoto.data.repository.AuthRepositoryImplFirebase
 import com.ipn.escomoto.data.repository.MotorcycleRepositoryImplFirebase
 import com.ipn.escomoto.data.repository.HistoryRepositoryImplFirebase
+import com.ipn.escomoto.data.repository.SystemRepositoryImplFirebase
 import com.ipn.escomoto.domain.repository.AccessRepository
 import com.ipn.escomoto.domain.repository.AuthRepository
 import com.ipn.escomoto.domain.repository.MotorcycleRepository
 import com.ipn.escomoto.domain.repository.HistoryRepository
+import com.ipn.escomoto.domain.repository.SystemRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -40,4 +42,10 @@ abstract class RepositoryModule {
     abstract fun bindHistoryRepository(
         impl: HistoryRepositoryImplFirebase
     ): HistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSystemRepository(
+        impl: SystemRepositoryImplFirebase
+    ): SystemRepository
 }

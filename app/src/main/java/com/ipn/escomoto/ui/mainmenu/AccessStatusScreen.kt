@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material3.OutlinedButton
 import com.ipn.escomoto.domain.model.AccessType
 import com.ipn.escomoto.domain.model.StatusType
+import com.ipn.escomoto.ui.common.SystemFeedbackEffect
 
 @Composable
 fun AccessStatusScreen(
@@ -46,7 +47,7 @@ fun AccessStatusScreen(
     val approvedSubtitle = if (isEntry) "Puedes ingresar al estacionamiento." else "Salida autorizada correctamente."
 
     Dialog(
-        onDismissRequest = { /* No permitir cerrar si está pendiente? O sí */ },
+        onDismissRequest = { },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -72,6 +73,7 @@ fun AccessStatusScreen(
                             }
 
                             StatusType.APPROVED -> {
+                                SystemFeedbackEffect(true)
                                 Icon(
                                     Icons.Default.CheckCircle,
                                     null,
@@ -84,6 +86,7 @@ fun AccessStatusScreen(
                             }
 
                             StatusType.REJECTED -> {
+                                SystemFeedbackEffect(false)
                                 Icon(
                                     Icons.Default.Cancel,
                                     null,

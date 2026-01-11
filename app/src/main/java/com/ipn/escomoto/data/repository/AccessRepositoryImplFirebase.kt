@@ -15,11 +15,11 @@ import javax.inject.Singleton
 
 @Singleton
 class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
-    private val db = FirebaseFirestore.getInstance().collection("access_requests")
+    private val accessColl = FirebaseFirestore.getInstance().collection("access_requests")
 
     override suspend fun createAccessRequest(request: AccessRequest): Result<String> {
         return try {
-            val docRef = db.document() // Genera ID automático antes de guardar
+            val docRef = accessColl.document() // Genera ID automático antes de guardar
             val requestWithId = request.copy(id = docRef.id)
             docRef.set(requestWithId).await()
             Result.success(docRef.id) // Retornamos el ID
@@ -27,11 +27,13 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
             Result.failure(e)
         }
     }
+
     override fun getAccessRequestFlow(requestId: String): Flow<AccessRequest> = callbackFlow {
-        val subscription = db.document(requestId)
+        val subscription = accessColl.document(requestId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+//                    close(error)
+                    Log.e("AccessRepo", "Error escuchando solicitud individual: ${error.message}")
                     return@addSnapshotListener
                 }
                 if (snapshot != null && snapshot.exists()) {
@@ -43,10 +45,11 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
     }
 
     override fun getPendingRequests(): Flow<List<AccessRequest>> = callbackFlow {
-        val subscription = db.whereEqualTo("status", StatusType.PENDING)
+        val subscription = accessColl.whereEqualTo("status", StatusType.PENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("AccessRepo", "Error de permisos o red: ${error.message}")
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val logs = snapshot?.documents?.mapNotNull {
@@ -59,7 +62,7 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
 
     override suspend fun updateRequestStatus(requestId: String, status: StatusType): Result<Unit> {
         return try {
-            db.document(requestId).update("status", status).await()
+            accessColl.document(requestId).update("status", status).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -69,8 +72,8 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
     override suspend fun getLastAccess(userId: String): Result<AccessRequest?> {
         return try {
             // Buscamos el último registro APROBADO de este usuario
-            val snapshot = db.whereEqualTo("userId", userId)
-                .whereEqualTo("status", "APPROVED")
+            val snapshot = accessColl.whereEqualTo("userId", userId)
+                .whereEqualTo("status", StatusType.APPROVED)
                 .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(1)
                 .get().await()
@@ -88,8 +91,8 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
 
     override suspend fun getPendingRequestByUserId(userId: String): Result<AccessRequest?> {
         return try {
-            val snapshot = db.whereEqualTo("userId", userId)
-                .whereEqualTo("status", "PENDING") // Buscamos solo las pendientes
+            val snapshot = accessColl.whereEqualTo("userId", userId)
+                .whereEqualTo("status", StatusType.PENDING) // Buscamos solo las pendientes
                 .limit(1)
                 .get().await()
 

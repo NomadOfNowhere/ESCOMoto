@@ -26,11 +26,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import androidx.compose.runtime.collectAsState
 import com.ipn.escomoto.domain.model.HistoryFilter
+import com.ipn.escomoto.domain.model.SystemSettings
+import com.ipn.escomoto.domain.repository.AuthRepository
+import com.ipn.escomoto.domain.repository.SystemRepository
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import java.util.Date
 
 @HiltViewModel
 class MainMenuViewModel @Inject constructor(
     private val motorcycleRepository: MotorcycleRepository,
-    private val accessRepository: AccessRepository
+    private val accessRepository: AccessRepository,
+    private val authRepository: AuthRepository,
+    private val systemRepository: SystemRepository
 ) : ViewModel() {
     // Estados de la UI
     var selectedTab by mutableIntStateOf(0)
@@ -51,12 +59,25 @@ class MainMenuViewModel @Inject constructor(
         private set
 
     // Flujo para supervisor
-    val pendingRequests = accessRepository.getPendingRequests()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val pendingRequests = flow {
+        // Obtenemos el usuario actual
+        val result = authRepository.getCurrentUser()
+        val user = result.getOrNull()
+
+        // Verificamos el rol
+        if (user != null && (user.userType == "Supervisor" || user.userType == "Administrador")) {
+            Log.d("MainMenuVM", "Usuario es Staff. Suscribiendo a solicitudes...")
+            // Si es Staff, conectamos el flujo real del repositorio
+            emitAll(accessRepository.getPendingRequests())
+        } else {
+            emit(emptyList())
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
     private var currentEntryMotorcycleId: String? = null
 
     // Lógica de estados
@@ -69,6 +90,7 @@ class MainMenuViewModel @Inject constructor(
             errorMessage = "Ya estás dentro. Debes hacer Check-out primero."
             return
         }
+
         prepareRequest()
     }
 
@@ -116,9 +138,14 @@ class MainMenuViewModel @Inject constructor(
 
     // Check-in
     private fun createRequest(moto: Motorcycle, actionType: AccessType) {
-
         viewModelScope.launch {
             isLoading = true
+            val settings = systemRepository.getSystemSettings().getOrNull()
+            if (settings == null || !settings.checksEnabled) {
+                errorMessage = "Horario fuera de servicio: Lunes a Sábado (06:00 - 22:00)."
+                isLoading = false
+                return@launch
+            }
             try {
                 val request = AccessRequest(
                     userId = moto.ownerId,
