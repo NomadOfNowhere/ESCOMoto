@@ -1,1 +1,11 @@
 /build
+
+# Archivos de seguridad
+google-services.json
+
+# Salidas de compilación
+/release
+/debug
+*.apk
+*.aab
+coverage.ec

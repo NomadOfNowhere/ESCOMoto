@@ -1,3 +1,4 @@
+# IDE y build
 *.iml
 .gradle
 /local.properties
@@ -13,3 +14,22 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Archivos de configuración de Firebase y Google
+google-services.json
+GoogleService-Info.plist
+
+# Llaves de firma (Keystores)
+*.jks
+*.keystore
+*.pem
+*.p12
+
+# Archivos de claves secretas personalizados
+key.properties
+secrets.properties
+
+# Archivos extra
+*.log
+generated/
+.idea/codeStyles
