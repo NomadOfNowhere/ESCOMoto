@@ -11,6 +11,8 @@ data class AccessRequest (
     val motorcycleImgUrl: String? = null,
     val type: AccessType = AccessType.ENTRY,
     val status: StatusType = StatusType.PENDING,
-    val timestamp: Date = Date(),
-//    val acceptedBy: String = ""
+    val requestTime: Date = Date(),
+    val searchKeywords: List<String> = emptyList(),
+    val acceptedBy: String? = null,
+    val processTime: Date? = null,
 )

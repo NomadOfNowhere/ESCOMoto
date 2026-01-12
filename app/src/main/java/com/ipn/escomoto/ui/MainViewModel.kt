@@ -32,7 +32,8 @@ class MainViewModel @Inject constructor(
             systemRepository.getSystemSettingsFlow().collect { settings ->
                 if (settings.systemEnabled) {
                     _appState.value = AppState.Active
-                } else {
+                }
+                else {
                     _appState.value = AppState.Maintenance
                 }
             }

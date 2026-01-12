@@ -1,9 +1,12 @@
 package com.ipn.escomoto.ui.mainmenu.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,25 +55,42 @@ fun BottomNavigationBar(
             )
         )
 
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Apps, contentDescription = "Servicios") },
-            label = { Text("Servicios", fontSize = 12.sp) },
-            selected = selectedTab == 2,
-            onClick = { onTabSelected(2) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.primary,
-                selectedTextColor = MaterialTheme.colorScheme.primary,
-                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                unselectedIconColor = MaterialTheme.colorScheme.outline,
-                unselectedTextColor = MaterialTheme.colorScheme.outline
+        if(userType == "Administrador") {
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Dashboard, contentDescription = "Panel de control") },
+                label = { Text("Sistema", fontSize = 12.sp) },
+                selected = selectedTab == 2,
+                onClick = { onTabSelected(2) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                    unselectedIconColor = MaterialTheme.colorScheme.outline,
+                    unselectedTextColor = MaterialTheme.colorScheme.outline
+                )
             )
-        )
+        }
+        else {
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Apps, contentDescription = "Servicios") },
+                label = { Text("Servicios", fontSize = 12.sp) },
+                selected = selectedTab == 3,
+                onClick = { onTabSelected(3) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                    unselectedIconColor = MaterialTheme.colorScheme.outline,
+                    unselectedTextColor = MaterialTheme.colorScheme.outline
+                )
+            )
+        }
 
         NavigationBarItem(
             icon = { Icon(Icons.Default.Person, contentDescription = "Mi cuenta") },
             label = { Text("Mi cuenta", fontSize = 12.sp) },
-            selected = selectedTab == 3,
-            onClick = { onTabSelected(3) },
+            selected = selectedTab == 4,
+            onClick = { onTabSelected(4) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 selectedTextColor = MaterialTheme.colorScheme.primary,

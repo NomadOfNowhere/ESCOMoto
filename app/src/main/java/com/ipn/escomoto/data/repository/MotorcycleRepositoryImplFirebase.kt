@@ -2,6 +2,7 @@ package com.ipn.escomoto.data.repository
 
 import android.net.Uri
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ipn.escomoto.domain.model.Motorcycle
 import com.ipn.escomoto.domain.repository.MotorcycleRepository
@@ -12,9 +13,13 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 
 @Singleton
-class MotorcycleRepositoryImplFirebase @Inject constructor() : MotorcycleRepository{
-    private val motorColl = FirebaseFirestore.getInstance().collection("motorcycles")
-    private val storageRef = FirebaseStorage.getInstance().reference
+class MotorcycleRepositoryImplFirebase @Inject constructor(
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
+) : MotorcycleRepository{
+    private val motorColl = firestore.collection("motorcycles")
+    private val storageRef = storage.reference
+
 
     override suspend fun add(moto: Motorcycle): Result<Motorcycle> {
         return try {

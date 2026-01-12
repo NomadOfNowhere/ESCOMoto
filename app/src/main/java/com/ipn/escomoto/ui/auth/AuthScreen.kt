@@ -41,6 +41,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ipn.escomoto.domain.model.User
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import com.ipn.escomoto.ui.common.SnackbarType
+import com.ipn.escomoto.ui.components.StyledSnackbar
 
 @Composable
 fun AuthScreen(
@@ -49,12 +55,21 @@ fun AuthScreen(
 ) {
     var isLogin by remember { mutableStateOf(true) }
     val isDarkTheme = isSystemInDarkTheme()
-
-    /* Animaciones */
-    // Estado para controlar la animación inicial
     var isVisible by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarErrorMessage = viewModel.snackbarErrorMessage
+
+    LaunchedEffect(snackbarErrorMessage) {
+        if (snackbarErrorMessage != null) {
+            snackbarHostState.showSnackbar(
+                message = snackbarErrorMessage,
+                withDismissAction = true,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearError()
+        }
+    }
 
     // Iniciar animaciones cuando se monta el componente
     LaunchedEffect(Unit) {
@@ -76,94 +91,113 @@ fun AuthScreen(
         label = "logo_alpha"
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = if (isDarkTheme) {
-                        listOf(BackgroundGradientStart, BackgroundGradientEnd)
-                    } else {
-                        listOf(BackgroundGradientStartLight, BackgroundGradientEndLight)
-                    }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(16.dp)
+            ) { data ->
+                // Usamos tu componente personalizado
+                StyledSnackbar(
+                    message = data.visuals.message,
+                    isDarkTheme = isDarkTheme,
+                    onDismiss = { data.dismiss() },
+                    type = SnackbarType.ERROR
                 )
-            )
-    ) {
-        Column(
+            }
+        },
+        containerColor = androidx.compose.ui.graphics.Color.Transparent // Transparente para ver nuestro gradiente
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(60.dp))
-
-            // Logo con animación
-            Box(
-                modifier = Modifier
-                    .scale(logoScale)
-                    .alpha(logoAlpha)
-            ) {
-                LogoSection()
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Formulario animado
-            AnimatedContent(
-                targetState = isLogin,
-                transitionSpec = {
-                    (fadeIn(animationSpec = tween(300)) +
-                            slideInHorizontally(
-                                animationSpec = tween(300),
-                                initialOffsetX = { if (targetState) -it else it }
-                            )).togetherWith(
-                        fadeOut(animationSpec = tween(300)) +
-                                slideOutHorizontally(
-                                    animationSpec = tween(300),
-                                    targetOffsetX = { if (targetState) it else -it }
-                                )
-                    )
-                },
-                label = "auth_animation"
-            ) { targetIsLogin ->
-                if (targetIsLogin) {
-                    LoginForm(
-                        isLoading = viewModel.isLoading,
-                        errorMessage = viewModel.errorMessage,
-                        onLoginClick = { email, pass ->
-                            viewModel.login(email, pass, onLoginSuccess)
-                        },
-                        onSwitchToRegister = { isLogin = false },
-                        onForgotPassword = { email ->
-                            viewModel.sendPasswordResetEmail(email) {
-                                Toast.makeText(
-                                    context,
-                                    "Correo enviado. Revisa tu bandeja.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                .padding(paddingValues)
+                .background(
+                    Brush.verticalGradient(
+                        colors = if (isDarkTheme) {
+                            listOf(BackgroundGradientStart, BackgroundGradientEnd)
+                        } else {
+                            listOf(BackgroundGradientStartLight, BackgroundGradientEndLight)
                         }
                     )
-                } else {
-                    RegisterForm(
-                        isLoading = viewModel.isLoading,
-                        errorMessage = viewModel.errorMessage,
-                        onRegisterSubmit = { name, escomId, email, pass, confirm, type ->
-                            viewModel.register(
-                                User(
-                                    name = name,
-                                    escomId = escomId,
-                                    email = email,
-                                    userType = type
-                                ),
-                                password = pass,
-                                confirmPassword = confirm,
-                                onLoginSuccess
-                            )
-                        },
-                        onSwitchToLogin = { isLogin = true }
-                    )
+                )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(60.dp))
+
+                // Logo con animación
+                Box(
+                    modifier = Modifier
+                        .scale(logoScale)
+                        .alpha(logoAlpha)
+                ) {
+                    LogoSection()
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Formulario animado
+                AnimatedContent(
+                    targetState = isLogin,
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(300)) +
+                                slideInHorizontally(
+                                    animationSpec = tween(300),
+                                    initialOffsetX = { if (targetState) -it else it }
+                                )).togetherWith(
+                            fadeOut(animationSpec = tween(300)) +
+                                    slideOutHorizontally(
+                                        animationSpec = tween(300),
+                                        targetOffsetX = { if (targetState) it else -it }
+                                    )
+                        )
+                    },
+                    label = "auth_animation"
+                ) { targetIsLogin ->
+                    if (targetIsLogin) {
+                        LoginForm(
+                            isLoading = viewModel.isLoading,
+                            errorMessage = viewModel.errorMessage,
+                            onLoginClick = { email, pass ->
+                                viewModel.login(email, pass, onLoginSuccess)
+                            },
+                            onSwitchToRegister = { isLogin = false },
+                            onForgotPassword = { email ->
+                                viewModel.sendPasswordResetEmail(email) {
+                                    Toast.makeText(
+                                        context,
+                                        "Correo enviado. Revisa tu bandeja.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        )
+                    } else {
+                        RegisterForm(
+                            isLoading = viewModel.isLoading,
+                            errorMessage = viewModel.errorMessage,
+                            onRegisterSubmit = { name, escomId, email, pass, confirm, type ->
+                                viewModel.register(
+                                    User(
+                                        name = name,
+                                        escomId = escomId,
+                                        email = email,
+                                        userType = type
+                                    ),
+                                    password = pass,
+                                    confirmPassword = confirm,
+                                    onLoginSuccess
+                                )
+                            },
+                            onSwitchToLogin = { isLogin = true }
+                        )
+                    }
                 }
             }
         }

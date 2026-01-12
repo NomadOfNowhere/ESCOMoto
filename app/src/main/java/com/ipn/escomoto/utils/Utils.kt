@@ -1,10 +1,21 @@
 package com.ipn.escomoto.utils
 
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
+
+fun getTodayRange(): Pair<Date, Date> {
+    val zoneId = ZoneId.systemDefault()
+    val today = LocalDate.now(zoneId)
+    val startInstant = today.atStartOfDay(zoneId).toInstant()
+    val endInstant = today.atTime(LocalTime.MAX).atZone(zoneId).toInstant()
+    return Pair(Date.from(startInstant), Date.from(endInstant))
+}
 
 fun Date?.toDateString(): String {
     if (this == null) return "Fecha desconocida"
@@ -14,26 +25,23 @@ fun Date?.toDateString(): String {
     return formatter.format(this)
 }
 
-// Utilidades para fechas (Colócalas fuera o en DateUtils)
-fun getStartOfDay(millis: Long): Long {
-    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-        timeInMillis = millis
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }
-    return calendar.timeInMillis
+fun getStartOfDayInLocal(utcMillis: Long): Long {
+    // Convertimos los milisegundos del Picker (que vienen en UTC) a una FECHA simple
+    val instant = Instant.ofEpochMilli(utcMillis)
+    val localDate = instant.atZone(ZoneOffset.UTC).toLocalDate()
+    val zoneId = ZoneId.systemDefault()
+    val startOfDay = localDate.atStartOfDay(zoneId)
+
+    return startOfDay.toInstant().toEpochMilli()
 }
 
+fun getEndOfDayInLocal(utcMillis: Long): Long {
+    // Convertimos los milisegundos del Picker (que vienen en UTC) a una FECHA simple
+    val instant = Instant.ofEpochMilli(utcMillis)
+    val localDate = instant.atZone(ZoneOffset.UTC).toLocalDate()
+    val zoneId = ZoneId.systemDefault()
 
-fun getEndOfDay(millis: Long): Long {
-    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-        timeInMillis = millis
-        set(Calendar.HOUR_OF_DAY, 23)
-        set(Calendar.MINUTE, 59)
-        set(Calendar.SECOND, 59)
-        set(Calendar.MILLISECOND, 999)
-    }
-    return calendar.timeInMillis
+    // Calculamos el inicio del día SIGUIENTE y restamos 1 milisegundo
+    val endOfDay = localDate.plusDays(1).atStartOfDay(zoneId).minusNanos(1)
+    return endOfDay.toInstant().toEpochMilli()
 }

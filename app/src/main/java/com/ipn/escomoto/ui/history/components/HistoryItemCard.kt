@@ -209,7 +209,7 @@ fun HistoryItemCard(
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
-                            text = request.timestamp.toDateString(),
+                            text = request.requestTime.toDateString(),
                             color = if (isDarkTheme) TextSecondary else TextSecondaryLight,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium

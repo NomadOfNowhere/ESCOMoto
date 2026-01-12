@@ -23,6 +23,8 @@ class AuthViewModel @Inject constructor(
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
+    var snackbarErrorMessage by mutableStateOf<String?>(null)
+        private set
     var isLoading by mutableStateOf(false)
         private set
 
@@ -30,14 +32,40 @@ class AuthViewModel @Inject constructor(
         checkUserSession()
     }
 
+//    private fun checkUserSession() {
+//        executeAuthAction(
+//            action = {
+//                // Llamamos al repositorio para obtener la sesión activa
+//                authRepository.getCurrentUser()
+//            },
+//            onSuccessCallback = {
+//
+//            }
+//        )
+//    }
+
     private fun checkUserSession() {
         executeAuthAction(
             action = {
-                // Llamamos al repositorio para obtener la sesión activa
                 authRepository.getCurrentUser()
             },
-            onSuccessCallback = { }
+            onSuccessCallback = { user ->
+                if (user.userType == "Visitante") {
+                    val created = user.createdAt?.time ?: 0L
+                    val deadline = created + (24 * 60 * 60 * 1000) // 24 horas en ms
+                    val now = System.currentTimeMillis()
+
+                    if (now > deadline) {
+                        logout()
+                        snackbarErrorMessage = "Tus credenciales de visitante caducaron, crea una nueva cuenta"
+                    }
+                }
+            }
         )
+    }
+
+    fun clearError() {
+        snackbarErrorMessage = null
     }
 
     fun login(id: String, pass: String, onLoginSuccess: () -> Unit) {

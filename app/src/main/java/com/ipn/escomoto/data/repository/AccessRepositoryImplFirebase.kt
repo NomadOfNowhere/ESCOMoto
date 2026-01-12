@@ -1,8 +1,8 @@
 package com.ipn.escomoto.data.repository
 
 import android.util.Log
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.ipn.escomoto.domain.model.AccessRequest
 import com.ipn.escomoto.domain.model.StatusType
 import com.ipn.escomoto.domain.repository.AccessRepository
@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.text.Normalizer
 
 @Singleton
-class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
-    private val accessColl = FirebaseFirestore.getInstance().collection("access_requests")
+class AccessRepositoryImplFirebase @Inject constructor(
+    private val firestore: FirebaseFirestore
+) : AccessRepository {
+    private val accessColl = firestore.collection("access_requests")
 
     override suspend fun createAccessRequest(request: AccessRequest): Result<String> {
         return try {
@@ -62,7 +65,11 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
 
     override suspend fun updateRequestStatus(requestId: String, status: StatusType): Result<Unit> {
         return try {
-            accessColl.document(requestId).update("status", status).await()
+            val acceptedBy = "Xd"
+            accessColl.document(requestId).update(
+                "status", status,
+                "acceptedBy", acceptedBy,
+            ).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -74,7 +81,7 @@ class AccessRepositoryImplFirebase @Inject constructor() : AccessRepository {
             // Buscamos el último registro APROBADO de este usuario
             val snapshot = accessColl.whereEqualTo("userId", userId)
                 .whereEqualTo("status", StatusType.APPROVED)
-                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .orderBy("requestTime", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(1)
                 .get().await()
 

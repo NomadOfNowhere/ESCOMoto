@@ -345,8 +345,6 @@ fun RegisterForm(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Sección para subir foto de identificación oficial
-            /*****/
-
             AnimatedVisibility(
                 visible = userType == "Visitante",
                 enter = fadeIn() + expandVertically(),
@@ -389,8 +387,6 @@ fun RegisterForm(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
-
-            /*******/
             // Términos con animación
             Row(
                 verticalAlignment = Alignment.CenterVertically,

@@ -7,14 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ipn.escomoto.domain.model.AccessRequest
 import com.ipn.escomoto.domain.model.HistoryFilter
-import com.ipn.escomoto.domain.repository.HistoryRepository
+import com.ipn.escomoto.domain.repository.ReportRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val historyRepository: HistoryRepository
+    private val reportRepository: ReportRepository
 ) : ViewModel() {
 
     var historyLogs by mutableStateOf<List<AccessRequest>>(emptyList())
@@ -36,7 +36,7 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading = true
 
-            val result = historyRepository.getHistory(
+            val result = reportRepository.getAccessHistory(
                 userRole = currentUserRole,
                 currentUserId = currentUserId,
                 filter = currentFilter,

@@ -14,7 +14,7 @@ import com.ipn.escomoto.domain.model.Motorcycle
 import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.domain.repository.AccessRepository
 import com.ipn.escomoto.domain.repository.MotorcycleRepository
-import com.ipn.escomoto.domain.repository.HistoryRepository
+import com.ipn.escomoto.domain.repository.ReportRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -136,7 +136,7 @@ class MainMenuViewModel @Inject constructor(
         showMotoSelector = false
     }
 
-    // Check-in
+    // Checks
     private fun createRequest(moto: Motorcycle, actionType: AccessType) {
         viewModelScope.launch {
             isLoading = true
@@ -147,13 +147,25 @@ class MainMenuViewModel @Inject constructor(
                 return@launch
             }
             try {
+                val result = authRepository.getCurrentUser()
+                val user = result.getOrNull()
+
+                if (user == null) {
+                    errorMessage = "Error de sesión: No se pudo identificar al usuario."
+                    isLoading = false
+                    return@launch
+                }
+
+                val tokens = generateSearchTokens(moto.ownerName, user.escomId)
+
                 val request = AccessRequest(
                     userId = moto.ownerId,
                     userName = moto.ownerName,
                     motorcycleId = moto.id,
                     motorcyclePlate = moto.licensePlate,
                     motorcycleImgUrl = moto.imageUrl,
-                    type = actionType
+                    type = actionType,
+                    searchKeywords = tokens,
                 )
 
                 accessRepository.createAccessRequest(request)
@@ -165,10 +177,28 @@ class MainMenuViewModel @Inject constructor(
                     }
             } catch (e: Exception) {
                 errorMessage = "Error desconocido"
+
             } finally {
                 isLoading = false
             }
         }
+    }
+
+    // Función para generar searchKeywords
+    private fun generateSearchTokens(name: String, id: String?): List<String> {
+        val tokens = mutableSetOf<String>()
+
+        // Nombre completo
+        tokens.add(name.lowercase().trim())
+
+        // Nombre
+        if (name.isNotEmpty()) {
+            tokens.addAll(name.lowercase().trim().split("\\s+".toRegex()))
+        }
+        // Boleta/Número de trabajo
+        if (!id.isNullOrEmpty()) tokens.add(id.lowercase())
+
+        return tokens.toList()
     }
 
     fun cancelCurrentRequest() {
@@ -194,7 +224,6 @@ class MainMenuViewModel @Inject constructor(
 
                 // SI SE APRUEBA: CAMBIAMOS EL ESTADO DEL USUARIO
                 if (request.status == StatusType.APPROVED) {
-                    // Opcional: Vibrar, sonido, notificación
                     if (request.type == AccessType.ENTRY) {
                         isUserInside = true
                         currentEntryMotorcycleId = request.motorcycleId  // Guardamos moto con la que entró
@@ -215,7 +244,8 @@ class MainMenuViewModel @Inject constructor(
     // Funciones de supervisor
     fun approveRequest(request: AccessRequest) {
         viewModelScope.launch {
-            accessRepository.updateRequestStatus(request.id, StatusType.APPROVED)
+            val result = authRepository.getCurrentUser()
+            accessRepository.updateRequestStatus(request.id, StatusType.APPROVED, )
         }
     }
 

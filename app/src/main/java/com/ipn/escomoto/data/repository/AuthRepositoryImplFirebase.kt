@@ -19,17 +19,21 @@ import com.google.firebase.firestore.Query
 import com.ipn.escomoto.domain.model.AccessRequest
 import com.ipn.escomoto.domain.model.StatusType
 import com.ipn.escomoto.domain.repository.AccessRepository
+import dagger.Provides
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 @Singleton
-class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val firestore = Firebase.firestore
-    private val storageRef = FirebaseStorage.getInstance().reference
+class AuthRepositoryImplFirebase @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
+) : AuthRepository {
+
     private val usersColl = firestore.collection("users")
+    private val storageRef = storage.reference
 
     override suspend fun login(email: String, pass: String): Result<User> {
         return try {
@@ -49,8 +53,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
                 Result.success(mapToDomain(authResult.user!!))
             }
         } catch (e: Exception) {
-//            Result.failure(e)
-            Result.failure(Exception(e.toUserFriendlyMessage()))
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -70,8 +74,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
                 Result.success(newUser)
             } ?: Result.failure(Exception("Error al crear usuario"))
         } catch (e: Exception) {
-//            Result.failure(e)
-            Result.failure(Exception(e.toUserFriendlyMessage()))
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -91,8 +95,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
                 Result.failure(Exception("No existe ninguna cuenta asociada a este número de boleta/empleado."))
             }
         } catch (e: Exception) {
-//            Result.failure(e)
-            Result.failure(Exception(e.toUserFriendlyMessage()))
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -111,8 +115,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
                 Result.success(mapToDomain(firebaseUser))
             }
         } catch (e: Exception) {
-//            Result.failure(e)
-            Result.failure(Exception(e.toUserFriendlyMessage()))
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -135,8 +139,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
             Result.success(downloadUrl)
         } catch (e: Exception) {
             e.printStackTrace()
-//            Result.failure(e)
-            Result.failure(Exception("Error al subir imagen: ${e.localizedMessage}"))
+            Result.failure(e)
+//            Result.failure(Exception("Error al subir imagen: ${e.localizedMessage}"))
         }
     }
 
@@ -147,8 +151,8 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
             usersColl.document(userId).update("imageUrl", newUrl).await()
             Result.success(Unit)
         } catch (e: Exception) {
-//            Result.failure(e)
-            Result.failure(Exception(e.toUserFriendlyMessage()))
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 
@@ -157,8 +161,64 @@ class AuthRepositoryImplFirebase @Inject constructor() : AuthRepository {
             auth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
         } catch (e: Exception) {
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
+        }
+    }
+
+//    override suspend fun promoteToSupervisor(userId: String): Result<Unit> {
+//        return try {
+//            firestore.collection("users")
+//                .document(userId)
+//                .update("userType", "Supervisor")
+//                .await()
+//
+//            Result.success(Unit)
+//        } catch (e: Exception) {
 //            Result.failure(e)
-            Result.failure(Exception(e.toUserFriendlyMessage()))
+//        }
+//    }
+
+//    override suspend fun getEmailByEscomId(escomId: String): Result<String> {
+//        return try {
+//            val query = usersColl
+//                .whereEqualTo("escomId", escomId)
+//                .limit(1)
+//                .get()
+//                .await()
+//
+//            if (!query.isEmpty) {
+//                val email = query.documents[0].getString("email") ?: ""
+//                Result.success(email)
+//            }
+//            else {
+//                Result.failure(Exception("No existe ninguna cuenta asociada a este número de boleta/empleado."))
+//            }
+//        } catch (e: Exception) {
+//            Result.failure(e)
+////            Result.failure(Exception(e.toUserFriendlyMessage()))
+//        }
+//    }
+
+    override suspend fun promoteToSupervisor(escomId: String): Result<Unit> {
+        return try {
+            val query = usersColl
+                .whereEqualTo("escomId", escomId)
+                .limit(1)
+                .get()
+                .await()
+
+            if(query.isEmpty) {
+                return Result.failure(Exception("No se encontró ningún usuario con la boleta $escomId"))
+            }
+
+            val userDoc = query.documents.first()
+            userDoc.reference.update("userType", "Supervisor").await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
         }
     }
 

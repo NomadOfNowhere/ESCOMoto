@@ -1,4 +1,4 @@
-package com.ipn.escomoto.ui.mainmenu.components
+package com.ipn.escomoto.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

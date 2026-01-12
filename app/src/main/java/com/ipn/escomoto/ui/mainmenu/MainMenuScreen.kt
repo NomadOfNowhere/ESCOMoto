@@ -25,8 +25,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import com.ipn.escomoto.ui.common.SnackbarType
-import com.ipn.escomoto.ui.mainmenu.components.StyledSnackbar
+import com.ipn.escomoto.ui.components.StyledSnackbar
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ipn.escomoto.ui.adminview.AdminScreen
 import com.ipn.escomoto.ui.history.HistoryScreen
 
 @Composable
@@ -163,8 +164,9 @@ fun MainMenuScreen(
                     onRejectRequest = { viewModel.rejectRequest(it) }
                 )
                 1 -> HistoryScreen(user?.userType ?: "Visitante", user?.id ?: null, contentModifier)
-                2 -> ServicesScreen(user?.userType ?: "Visitante", contentModifier)
-                3 -> ProfileScreen(
+                2 -> AdminScreen(contentModifier)
+                3 -> ServicesScreen(user?.userType ?: "Visitante", contentModifier)
+                4 -> ProfileScreen(
                     name = user?.name ?: "Usuario",
                     escomId = user?.escomId ?: "",
                     modifier = contentModifier,

@@ -46,6 +46,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.filled.TwoWheeler
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
@@ -145,7 +146,7 @@ fun MotorcycleCard(
                 } else {
                     // Si NO hay URL, mostramos el ícono original
                     Icon(
-                        Icons.Default.DirectionsBike,
+                        Icons.Default.TwoWheeler,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)

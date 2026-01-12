@@ -19,9 +19,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SystemRepositoryImplFirebase @Inject constructor() : SystemRepository {
-    private val auth = FirebaseAuth.getInstance()
-    private val configDoc = Firebase.firestore.collection("config").document("general_settings")
+class SystemRepositoryImplFirebase @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
+) : SystemRepository {
+    private val configDoc = firestore.collection("config").document("general_settings")
 
     override fun getSystemSettingsFlow(): Flow<SystemSettings> = callbackFlow {
         val subscription = configDoc.addSnapshotListener { snapshot, error ->
@@ -57,7 +59,7 @@ class SystemRepositoryImplFirebase @Inject constructor() : SystemRepository {
         return try {
             val adminId = auth.currentUser?.uid ?: return Result.failure(Exception("No autenticado"))
             val updates = mapOf(
-                "isSystemEnabled" to isEnabled,
+                "systemEnabled" to isEnabled,
                 "lastUpdated" to FieldValue.serverTimestamp(),
                 "updatedBy" to adminId
             )
@@ -74,7 +76,7 @@ class SystemRepositoryImplFirebase @Inject constructor() : SystemRepository {
         return try {
             val adminId = auth.currentUser?.uid ?: return Result.failure(Exception("No autenticado"))
             val updates = mapOf(
-                "areChecksEnabled" to areEnabled,
+                "checksEnabled" to areEnabled,
                 "lastUpdated" to FieldValue.serverTimestamp(),
                 "updatedBy" to adminId
             )

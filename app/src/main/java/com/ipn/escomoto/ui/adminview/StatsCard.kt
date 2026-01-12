@@ -1,4 +1,4 @@
-package com.ipn.escomoto.ui.mainmenu.components
+package com.ipn.escomoto.ui.adminview
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -20,17 +20,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun StatCard(
     label: String,
     value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     containerColor: Color,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier.height(90.dp),
+        modifier = modifier.height(84.dp),
         shape = RoundedCornerShape(16.dp),
         color = containerColor.copy(alpha = 0.1f),
         border = BorderStroke(1.dp, containerColor.copy(alpha = 0.2f))

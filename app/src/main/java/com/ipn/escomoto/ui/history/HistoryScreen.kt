@@ -25,8 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.ipn.escomoto.utils.getEndOfDay
-import com.ipn.escomoto.utils.getStartOfDay
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -47,6 +45,8 @@ import com.ipn.escomoto.ui.components.JumpRotateIcon
 import com.ipn.escomoto.ui.history.components.FilterInputDialog
 import com.ipn.escomoto.ui.history.components.HistoryItemCard
 import com.ipn.escomoto.ui.theme.PurplePrimary
+import com.ipn.escomoto.utils.getEndOfDayInLocal
+import com.ipn.escomoto.utils.getStartOfDayInLocal
 import kotlinx.coroutines.launch
 
 @Composable
@@ -66,15 +66,6 @@ fun HistoryScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
     var showFilters by remember { mutableStateOf(false) }
-
-    val rotation by animateFloatAsState(
-        targetValue = if (showFilters) 180f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "icon_rotation"
-    )
 
     // CARGA AUTOMÁTICA AL INICIAR LA PANTALLA
     LaunchedEffect(Unit) {
@@ -101,8 +92,8 @@ fun HistoryScreen(
 
                         if (startMillis != null && endMillis != null) {
                             // Calculamos inicio del primer día y fin del último día
-                            val start = getStartOfDay(startMillis)
-                            val end = getEndOfDay(endMillis)
+                            val start = getStartOfDayInLocal(startMillis)
+                            val end = getEndOfDayInLocal(endMillis)
 
                             // Actualizamos ViewModel
                             val newFilter = filters.copy(startDate = start, endDate = end)
@@ -158,9 +149,9 @@ fun HistoryScreen(
 
     if (showUserDialog) {
         FilterInputDialog(
-            title = "Filtrar por ID de Usuario",
+            title = "Filtrar por ESCOMid o nombres",
             onDismiss = { showUserDialog = false }) { text ->
-            val newFilter = filters.copy(userId = text)
+            val newFilter = filters.copy(searchKeyword = text)
             viewModel.updateFilter(newFilter)
             viewModel.loadHistory(userRole, userId, newFilter)
             showUserDialog = false
@@ -301,17 +292,17 @@ fun HistoryScreen(
                                         showFilters = showFilters
                                     )
                                 }
-                                // Filtro Usuario
+                                // Filtro por nombre o ESCOMid
                                 if (userRole != "ESCOMunidad" && userRole != "Visitante") {
                                         item {
                                             AnimatedChip(
-                                                selected = !filters.userId.isNullOrEmpty(),
+                                                selected = !filters.searchKeyword.isNullOrEmpty(),
                                                 onClick = { showUserDialog = true },
                                                 label = "Usuario",
                                                 icon = Icons.Default.Person,
-                                                onClear = if (!filters.userId.isNullOrEmpty()) {
+                                                onClear = if (!filters.searchKeyword.isNullOrEmpty()) {
                                                     {
-                                                        val newFilter = filters.copy(userId = null)
+                                                        val newFilter = filters.copy(searchKeyword = null)
                                                         viewModel.updateFilter(newFilter)
                                                         viewModel.loadHistory(userRole, userId, newFilter)
                                                     }
