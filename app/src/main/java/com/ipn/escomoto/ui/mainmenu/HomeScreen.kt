@@ -201,7 +201,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = when(userType) {
-                                "ESCOmunidad" -> "Número de boleta o empleado: ${escomId}"
+                                "ESCOMunidad" -> "Número de boleta/empleado: ${escomId}"
                                 "Supervisor","Administrador" -> "${userType} con ID: ${escomId}"
                                 else -> "Visitante, tu plan es temporal"
                             },

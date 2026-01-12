@@ -124,13 +124,6 @@ fun ProfileScreen(
     }
 }
 
-feat(admin): implement user promotion and role-based views
-
-- Feat: Implement logic to promote users to Supervisor role via Repository.
-- Fix: Resolve state persistence issue in system and checks toggle buttons (switches).
-- Refactor: Adjust UI visibility to differentiate between Admin and Supervisor views.
-- Style: Polish general UI styling for consistency.
-
 @Composable
 fun MergeMenuItem(option: UniversalOption) {
     var pressed by remember { mutableStateOf(false) }
@@ -235,7 +228,7 @@ fun UserProfileHeader(name: String, escomId: String, userType: String) {
             )
             Text(
                 text = when (userType) {
-                    "ESCOmunidad" -> "Boleta/Empleado: $escomId"
+                    "ESCOMunidad" -> "Boleta/Empleado: $escomId"
                     "Supervisor", "Administrador" -> "$userType ID: $escomId"
                     else -> "Visitante"
                 },
