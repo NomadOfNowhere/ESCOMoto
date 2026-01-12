@@ -27,14 +27,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Clase de datos unificada
-data class UniversalOption(
-    val icon: ImageVector,
-    val title: String,
-    val description: String? = null,
-    val requiresRole: List<String> = emptyList(),
-    val isDestructive: Boolean = false,
-    val onClick: () -> Unit
-)
+sealed interface MenuItem {
+    // Opción clicable
+    data class Option(
+        val icon: ImageVector,
+        val title: String,
+        val description: String? = null,
+        val isDestructive: Boolean = false,
+        val onClick: () -> Unit
+    ) : MenuItem
+
+    // Título de sección
+    data class Header(val text: String) : MenuItem
+}
 
 @Composable
 fun ProfileScreen(
@@ -49,39 +54,23 @@ fun ProfileScreen(
     val allOptions = remember(userType) {
         // Lista de Opciones de Perfil
         val profileSettings = listOf(
-            UniversalOption(Icons.Default.Settings, "Configuración", "Ajustes de la app") { /* onNavigate */ },
-            UniversalOption(Icons.Default.Help, "Ayuda y soporte") { /* onNavigate */ },
-            UniversalOption(Icons.Default.ExitToApp, "Cerrar sesión", isDestructive = true, onClick = onLogout)
+            MenuItem.Option(Icons.Default.Settings, "Configuración", "Ajustes de la app") { /* onNavigate */ },
+            MenuItem.Option(Icons.Default.Help, "Ayuda y soporte") { /* onNavigate */ },
+            MenuItem.Option(Icons.Default.ExitToApp, "Cerrar sesión", isDestructive = true, onClick = onLogout)
         )
 
         // Lista de Servicios
         val services = buildList {
             if(userType == "Administrador") {
-                add(UniversalOption(Icons.Default.FactCheck, "Checks", "Realizar check-in/out") { /* onNavigate */ })
-                add(UniversalOption(Icons.Default.TwoWheeler, "Mis motocicletas", "Gestionar vehículos") { /* onNavigate */ })
-                add(UniversalOption(Icons.Default.History, "Historial", "Ver registros") { /* onNavigate */ })
-                add(UniversalOption(Icons.Default.Person, "Mi cuenta", "Ver detalles de la cuenta") { /* onNavigate */ })
-
-                // Opciones restringidas
-                add(UniversalOption(
-                    Icons.Default.Notifications, "Solicitudes", "Gestionar check-in/out",
-                    requiresRole = listOf("Supervisor", "Administrador")
-                ) { /* onNavigate */ },)
-
-                add(UniversalOption(
-                    Icons.Default.LocalParking, "Estacionamiento", "Ver disponibilidad",
-                    requiresRole = listOf("Supervisor", "Administrador")
-                ) { /* onNavigate */ },)
-
-                add(UniversalOption(
-                    Icons.Default.PersonAdd, "Supervisores", "Gestionar cuentas",
-                    requiresRole = listOf("Administrador")
-                ) { /* onNavigate */ },)
-
-                add(UniversalOption(
-                    Icons.Default.Assessment, "Reportes", "Ver estadísticas",
-                    requiresRole = listOf("Administrador")
-                ) { /* onNavigate */ })
+                add(MenuItem.Header("Panel Administrativo"))
+                add(MenuItem.Option(Icons.Default.FactCheck, "Checks", "Realizar check-in/out") { /* onNavigate */ })
+                add(MenuItem.Option(Icons.Default.TwoWheeler, "Mis motocicletas", "Gestionar vehículos") { /* onNavigate */ })
+                add(MenuItem.Option(Icons.Default.History, "Historial", "Ver registros") { /* onNavigate */ })
+                add(MenuItem.Option(Icons.Default.Person, "Mi cuenta", "Ver detalles de la cuenta") { /* onNavigate */ })
+                add(MenuItem.Option(Icons.Default.Notifications, "Solicitudes", "Gestionar check-in/out") { /* onNavigate */ })
+                add(MenuItem.Option(Icons.Default.LocalParking, "Estacionamiento", "Ver disponibilidad") { /* onNavigate */ },)
+                add(MenuItem.Option(Icons.Default.PersonAdd, "Supervisores", "Gestionar cuentas") { /* onNavigate */ },)
+                add(MenuItem.Option(Icons.Default.Assessment, "Reportes", "Ver estadísticas") { /* onNavigate */ })
             }
         }
         // Merge de listas
@@ -115,9 +104,22 @@ fun ProfileScreen(
         }
 
         // Ítems 2..N: Lista de opciones
-        itemsIndexed(allOptions) { listIndex, option ->
+        itemsIndexed(allOptions) { listIndex, item ->
             AnimatedItemWrapper(index = listIndex + 2) {
-                MergeMenuItem(option = option)
+                when (item) {
+                    is MenuItem.Header -> {
+                        Text(
+                            text = item.text,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                        )
+                    }
+                    is MenuItem.Option -> {
+                        MergeMenuItem(option = item)
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -125,7 +127,7 @@ fun ProfileScreen(
 }
 
 @Composable
-fun MergeMenuItem(option: UniversalOption) {
+fun MergeMenuItem(option: MenuItem.Option) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.98f else 1f,
