@@ -66,6 +66,7 @@ fun HistoryScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
     var showFilters by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
     // CARGA AUTOMÁTICA AL INICIAR LA PANTALLA
     LaunchedEffect(Unit) {
@@ -161,7 +162,7 @@ fun HistoryScreen(
     PullToRefreshBox(
         modifier = modifier
             .fillMaxSize(),
-        isRefreshing = isLoading,
+        isRefreshing = isRefreshing,
         onRefresh = { viewModel.loadHistory(userRole, userId, filters) }
     ) {
         LazyColumn(

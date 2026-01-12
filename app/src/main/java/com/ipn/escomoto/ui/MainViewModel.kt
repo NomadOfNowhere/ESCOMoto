@@ -2,6 +2,7 @@ package com.ipn.escomoto.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.ipn.escomoto.domain.repository.SystemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val systemRepository: SystemRepository
+    private val systemRepository: SystemRepository,
 ) : ViewModel() {
 
     sealed class AppState {
@@ -29,12 +30,22 @@ class MainViewModel @Inject constructor(
 
     private fun observeSystemStatus() {
         viewModelScope.launch {
+            val adminCheck = systemRepository.isAdmin()
+            val isUserAdmin = adminCheck.isSuccess
+
+            // Observamos cambios en la configuración
             systemRepository.getSystemSettingsFlow().collect { settings ->
                 if (settings.systemEnabled) {
                     _appState.value = AppState.Active
-                }
-                else {
-                    _appState.value = AppState.Maintenance
+                } else {
+                    // Si el sistema está en MANTENIMIENTO
+                    if (isUserAdmin) {
+                        // Los admins ignoran el mantenimiento
+                        _appState.value = AppState.Active
+                    } else {
+                        // Los usuarios normales ven la pantalla de bloqueo
+                        _appState.value = AppState.Maintenance
+                    }
                 }
             }
         }

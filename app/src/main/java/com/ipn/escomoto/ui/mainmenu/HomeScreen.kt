@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ipn.escomoto.domain.model.AccessRequest
 import com.ipn.escomoto.domain.model.Motorcycle
+import com.ipn.escomoto.ui.common.SnackbarType
 import com.ipn.escomoto.ui.mainmenu.components.AddMotorcycleCard
 import com.ipn.escomoto.ui.mainmenu.components.AddMotorcycleDialog
 import com.ipn.escomoto.ui.mainmenu.components.EditMotorcycleDialog
@@ -87,6 +89,7 @@ fun HomeScreen(
     // Animación de entrada para elementos
     var visible by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
     // Estado para edición
     var selectedMotorcycle by remember { mutableStateOf<Motorcycle?>(null) }
@@ -166,11 +169,12 @@ fun HomeScreen(
         visible = true
     }
 
+
     // eii
     PullToRefreshBox(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize(),
-        isRefreshing = isLoading,
+        isRefreshing = isRefreshing,
         onRefresh = onRefresh
     ) {
         LazyColumn(
@@ -196,61 +200,17 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = if (userType == "Visitante") "Visitante, tu plan es temporal" else "Boleta: $escomId",
+                            text = when(userType) {
+                                "ESCOmunidad" -> "Número de boleta o empleado: ${escomId}"
+                                "Supervisor","Administrador" -> "${userType} con ID: ${escomId}"
+                                else -> "Visitante, tu plan es temporal"
+                            },
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.outline
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
-            }
-
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 100))
-                ) {
-                    Text(
-                        text = "Acciones rápidas",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-                }
-            }
-
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 200)
-                            )
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        QuickActionCard(
-                            icon = Icons.Default.Login,
-                            title = "Check-in",
-                            // color = Color(0xFF7C4DFF),
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.weight(1f),
-                            onClick = onCheckInTap
-                        )
-                        QuickActionCard(
-                            icon = Icons.Default.Logout,
-                            title = "Check-out",
-                            color = Color(0xFFFF6E40),
-                            modifier = Modifier.weight(1f),
-                            onClick = onCheckOutTap
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Sección según tipo de usuario
@@ -313,6 +273,54 @@ fun HomeScreen(
                         }
                     }
                 }
+            }
+
+            item {
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(600, delayMillis = 100))
+                ) {
+                    Text(
+                        text = "Acciones rápidas",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
+            }
+
+            item {
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
+                            slideInVertically(
+                                initialOffsetY = { 50 },
+                                animationSpec = tween(600, delayMillis = 200)
+                            )
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        QuickActionCard(
+                            icon = Icons.Default.Login,
+                            title = "Check-in",
+                            // color = Color(0xFF7C4DFF),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f),
+                            onClick = onCheckInTap
+                        )
+                        QuickActionCard(
+                            icon = Icons.Default.Logout,
+                            title = "Check-out",
+                            color = Color(0xFFFF6E40),
+                            modifier = Modifier.weight(1f),
+                            onClick = onCheckOutTap
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             item {

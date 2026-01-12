@@ -28,11 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserSearchDialog(
+    userlist: List<User>,
     onDismiss: () -> Unit,
     onUserSelected: (String) -> Unit
 ) {
@@ -40,24 +41,14 @@ fun UserSearchDialog(
     var isVisible by remember { mutableStateOf(false) }
     val isDarkTheme = isSystemInDarkTheme()
 
-    // Mock data - conectar con ViewModel real
-    val mockUsers = remember {
-        listOf(
-            UserSearchResult("1", "Juan Pérez García", "2020640123", "ESCOMunidad"),
-            UserSearchResult("2", "Ana López Martínez", "2021640555", "ESCOMunidad"),
-            UserSearchResult("3", "Carlos Rodríguez", "2019630789", "ESCOMunidad"),
-            UserSearchResult("4", "María González", "2022650234", "Visitante")
-        )
-    }
-
     // Filtrar usuarios según la búsqueda
     val filteredUsers = remember(query) {
         if (query.isEmpty()) {
-            mockUsers
+            userlist
         } else {
-            mockUsers.filter { user ->
+            userlist.filter { user ->
                 user.name.contains(query, ignoreCase = true) ||
-                        user.boleta.contains(query, ignoreCase = true)
+                        user.escomId!!.contains(query, ignoreCase = true)
             }
         }
     }
@@ -340,7 +331,7 @@ fun StyledSearchBar(
 
 @Composable
 fun AnimatedUserCard(
-    user: UserSearchResult,
+    user: User,
     index: Int,
     onClick: () -> Unit,
     isDarkTheme: Boolean
@@ -430,7 +421,7 @@ fun AnimatedUserCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = user.boleta,
+                        text = user.escomId!!,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = PurplePrimary
@@ -511,11 +502,3 @@ fun EmptySearchState(query: String, isDarkTheme: Boolean) {
         }
     }
 }
-
-// Data class para los resultados de búsqueda
-data class UserSearchResult(
-    val id: String,
-    val name: String,
-    val boleta: String,
-    val userType: String
-)

@@ -1,60 +1,54 @@
 package com.ipn.escomoto.ui.mainmenu
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.DirectionsBike
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LocalParking
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+data class MenuOption(
+    val icon: ImageVector,
+    val title: String,
+    val description: String,
+    val requiresRole: List<String> = emptyList()
+)
+
 @Composable
 fun ServicesScreen(userType: String, modifier: Modifier) {
-    var visible by remember { mutableStateOf(false) }
+    val allOptions = remember {
+        listOf(
+            MenuOption(Icons.Default.FactCheck, "Checks", "Realizar check-in/out"),
+            MenuOption(Icons.Default.TwoWheeler, "Mis motocicletas", "Gestionar vehículos"),
+            MenuOption(Icons.Default.History, "Historial", "Ver registros"),
+            MenuOption(Icons.Default.Person, "Mi cuenta", "Ver detalles de la cuenta"),
+            MenuOption(Icons.Default.Notifications, "Solicitudes", "Gestionar check-in/out", listOf("Supervisor", "Administrador")),
+            MenuOption(Icons.Default.LocalParking, "Estacionamiento", "Ver disponibilidad", listOf("Supervisor", "Administrador")),
+            MenuOption(Icons.Default.PersonAdd, "Supervisores", "Gestionar cuentas", listOf("Administrador")),
+            MenuOption(Icons.Default.Assessment, "Reportes", "Ver estadísticas", listOf("Administrador"))
+        )
+    }
 
-    LaunchedEffect(Unit) {
-        visible = true
+    // Filtramos la lista según el usuario
+    val filteredOptions = remember(userType) {
+        allOptions.filter { it.requiresRole.isEmpty() || it.requiresRole.contains(userType) }
     }
 
     LazyColumn(
@@ -64,140 +58,69 @@ fun ServicesScreen(userType: String, modifier: Modifier) {
             .padding(16.dp)
     ) {
         item {
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn(animationSpec = tween(600)) +
-                        slideInVertically(initialOffsetY = { -40 })
-            ) {
-                Text(
-                    text = "Servicios",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
+            Text(
+                text = "Servicios",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .graphicsLayer {
+                        alpha = 1f
+                    }
+            )
         }
 
-        if (userType == "Supervisor" || userType == "Administrador") {
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 100)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 100)
-                            )
-                ) {
-                    Column {
-                        ServiceMenuItem(
-                            icon = Icons.Default.Notifications,
-                            title = "Solicitudes",
-                            description = "Gestionar check-in y check-out",
-                            onClick = { }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-            }
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 200)
-                            )
-                ) {
-                    Column {
-                        ServiceMenuItem(
-                            icon = Icons.Default.LocalParking,
-                            title = "Estacionamiento",
-                            description = "Ver disponibilidad",
-                            onClick = { }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-            }
+        itemsIndexed(filteredOptions) { index, option ->
+            ServicesCard(
+                icon = option.icon,
+                title = option.title,
+                description = option.description,
+                index = index,
+                onClick = { /* TODO */ }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
         }
-        if (userType == "Administrador") {
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 100)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 100)
-                            )
-                ) {
-                    Column {
-                        ServiceMenuItem(
-                            icon = Icons.Default.PersonAdd,
-                            title = "Supervisores",
-                            description = "Gestionar cuentas",
-                            onClick = { }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
+    }
+}
+
+@Composable
+fun ServicesCard(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    index: Int,
+    onClick: () -> Unit
+) {
+    // Estado para la animación
+    val animatedProgress = remember { Animatable(initialValue = 0f) }
+
+    LaunchedEffect(Unit) {
+        animatedProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 600,
+                delayMillis = index * 100
+            )
+        )
+    }
+
+    // El item ya ocupa su espacio, modificamos su opacidad y desplazamiento visual
+    Column(
+        modifier = Modifier
+            .graphicsLayer {
+                // Opacidad de 0 a 1
+                alpha = animatedProgress.value
+                // Desplazamiento vertical: Entra desde abajo (50px) hacia su posición original (0)
+                translationY = 50.dp.toPx() * (1f - animatedProgress.value)
             }
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 200)
-                            )
-                ) {
-                    ServiceMenuItem(
-                        icon = Icons.Default.Assessment,
-                        title = "Reportes",
-                        description = "Ver estadísticas",
-                        onClick = { }
-                    )
-                }
-            }
-        } else {
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 100)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 100)
-                            )
-                ) {
-                    Column {
-                        ServiceMenuItem(
-                            icon = Icons.Default.DirectionsBike,
-                            title = "Mis motocicletas",
-                            description = "Gestionar vehículos",
-                            onClick = {  }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-            }
-            item {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
-                            slideInVertically(
-                                initialOffsetY = { 50 },
-                                animationSpec = tween(600, delayMillis = 200)
-                            )
-                ) {
-                    ServiceMenuItem(
-                        icon = Icons.Default.History,
-                        title = "Historial",
-                        description = "Ver registros",
-                        onClick = { }
-                    )
-                }
-            }
-        }
+    ) {
+        ServiceMenuItem(
+            icon = icon,
+            title = title,
+            description = description,
+            onClick = onClick
+        )
     }
 }
 

@@ -168,6 +168,7 @@ fun MainMenuScreen(
                 3 -> ServicesScreen(user?.userType ?: "Visitante", contentModifier)
                 4 -> ProfileScreen(
                     name = user?.name ?: "Usuario",
+                    userType = user?.userType ?: "Visitante",
                     escomId = user?.escomId ?: "",
                     modifier = contentModifier,
                     onLogout = onLogout

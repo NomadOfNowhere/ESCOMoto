@@ -200,28 +200,6 @@ class AuthRepositoryImplFirebase @Inject constructor(
 //        }
 //    }
 
-    override suspend fun promoteToSupervisor(escomId: String): Result<Unit> {
-        return try {
-            val query = usersColl
-                .whereEqualTo("escomId", escomId)
-                .limit(1)
-                .get()
-                .await()
-
-            if(query.isEmpty) {
-                return Result.failure(Exception("No se encontró ningún usuario con la boleta $escomId"))
-            }
-
-            val userDoc = query.documents.first()
-            userDoc.reference.update("userType", "Supervisor").await()
-
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-//            Result.failure(Exception(e.toUserFriendlyMessage()))
-        }
-    }
-
     // Mapper
     private fun mapToDomain(firebaseUser: FirebaseUser): User {
         return User(
@@ -231,5 +209,30 @@ class AuthRepositoryImplFirebase @Inject constructor(
             userType = "Visitante",
             escomId = null
         )
+    }
+
+    override suspend fun updateUserType(userId: String, newType: String): Result<Unit>  {
+        return try {
+            // Buscamos el documento con su ID y actualizamos datos
+            usersColl.document(userId).update("userType", newType).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+//            Result.failure(Exception(e.toUserFriendlyMessage()))
+        }
+    }
+
+    override suspend fun getUserTypeProfiles(type: String): Result<List<User>> {
+        return try {
+            val querySnapshot = firestore.collection("users")
+                .whereEqualTo("userType", type)
+                .get()
+                .await()
+
+            val usersList = querySnapshot.toObjects(User::class.java)
+            Result.success(usersList)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

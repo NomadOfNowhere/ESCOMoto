@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.ipn.escomoto.domain.model.AdminStats
 import com.ipn.escomoto.domain.model.SystemSettings
+import com.ipn.escomoto.domain.model.User
 import com.ipn.escomoto.domain.repository.AccessRepository
 import com.ipn.escomoto.domain.repository.AuthRepository
 import com.ipn.escomoto.domain.repository.SystemRepository
@@ -36,9 +37,15 @@ class AdminViewModel @Inject constructor(
         private set
     var systemSettings by mutableStateOf(SystemSettings())
         private set
+    var isSettingsLoading by mutableStateOf(true)
+        private set
+    var userProfiles by mutableStateOf<List<User>>(emptyList())
+        private set
 
     init {
         loadStats()
+        observeSystemConfig()
+        getUserProfiles()
     }
 
     fun loadStats() {
@@ -61,21 +68,28 @@ class AdminViewModel @Inject constructor(
         }
     }
 
-    fun promoteUser(escomId: String) {
+    fun getUserProfiles() {
         viewModelScope.launch {
-            isLoading = true // Mostramos spinner
+            val result = authRepository.getUserTypeProfiles("ESCOMunidad")
 
-            val result = authRepository.promoteToSupervisor(escomId)
+            result.onSuccess { newUserlist ->
+                userProfiles = newUserlist
+                Log.d("AdminViewModel", "Usuarios cargados: ${newUserlist.size}")
+            }
+            result.onFailure { error ->
+                Log.e("AdminViewModel", "Error cargando stats", error)
+            }
+        }
+    }
+
+    fun setUserType(escomId: String, newType: String) {
+        viewModelScope.launch {
+            val result = authRepository.updateUserType(escomId, newType)
 
             result.onSuccess {
-                // 1. Limpiamos errores previos
-//                errorMessage = null
-                // 2. Opcional: Recargamos todas las estadísticas para ver el +1 en Supervisores
                 loadStats()
-                // 3. Podrías lanzar un mensaje de éxito
                 Log.d("AdminVM", "Usuario $escomId ahora es Supervisor")
             }.onFailure { e ->
-//                errorMessage = "No se pudo ascender al usuario: ${e.localizedMessage}"
             }
             isLoading = false
         }
@@ -86,13 +100,13 @@ class AdminViewModel @Inject constructor(
         viewModelScope.launch {
             systemRepository.getSystemSettingsFlow().collect { settings ->
                 systemSettings = settings
+                isSettingsLoading = false
             }
         }
     }
 
     // Lógica para el Switch de Sistema
     fun toggleSystem(isEnabled: Boolean) {
-        // Actualización optimista (cambia en la UI de inmediato para fluidez)
         val previousSettings = systemSettings
         systemSettings = systemSettings.copy(systemEnabled = isEnabled)
 

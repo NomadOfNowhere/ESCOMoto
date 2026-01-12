@@ -1,190 +1,138 @@
 package com.ipn.escomoto.ui.mainmenu
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Help
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Clase de datos unificada
+data class UniversalOption(
+    val icon: ImageVector,
+    val title: String,
+    val description: String? = null,
+    val requiresRole: List<String> = emptyList(),
+    val isDestructive: Boolean = false,
+    val onClick: () -> Unit
+)
+
 @Composable
 fun ProfileScreen(
     name: String,
     escomId: String,
-    modifier: Modifier,
-    onLogout: () -> Unit
+    userType: String,
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit,
+    // onNavigate: (String) -> Unit // Descomenta cuando conectes la navegación
 ) {
-    var visible by remember { mutableStateOf(false) }
+    // Construcción de la lista completa
+    val allOptions = remember(userType) {
+        // Lista de Opciones de Perfil
+        val profileSettings = listOf(
+            UniversalOption(Icons.Default.Settings, "Configuración", "Ajustes de la app") { /* onNavigate */ },
+            UniversalOption(Icons.Default.Help, "Ayuda y soporte") { /* onNavigate */ },
+            UniversalOption(Icons.Default.ExitToApp, "Cerrar sesión", isDestructive = true, onClick = onLogout)
+        )
 
-    LaunchedEffect(Unit) {
-        visible = true
+        // Lista de Servicios
+        val services = buildList {
+            if(userType == "Administrador") {
+                add(UniversalOption(Icons.Default.FactCheck, "Checks", "Realizar check-in/out") { /* onNavigate */ })
+                add(UniversalOption(Icons.Default.TwoWheeler, "Mis motocicletas", "Gestionar vehículos") { /* onNavigate */ })
+                add(UniversalOption(Icons.Default.History, "Historial", "Ver registros") { /* onNavigate */ })
+                add(UniversalOption(Icons.Default.Person, "Mi cuenta", "Ver detalles de la cuenta") { /* onNavigate */ })
+
+                // Opciones restringidas
+                add(UniversalOption(
+                    Icons.Default.Notifications, "Solicitudes", "Gestionar check-in/out",
+                    requiresRole = listOf("Supervisor", "Administrador")
+                ) { /* onNavigate */ },)
+
+                add(UniversalOption(
+                    Icons.Default.LocalParking, "Estacionamiento", "Ver disponibilidad",
+                    requiresRole = listOf("Supervisor", "Administrador")
+                ) { /* onNavigate */ },)
+
+                add(UniversalOption(
+                    Icons.Default.PersonAdd, "Supervisores", "Gestionar cuentas",
+                    requiresRole = listOf("Administrador")
+                ) { /* onNavigate */ },)
+
+                add(UniversalOption(
+                    Icons.Default.Assessment, "Reportes", "Ver estadísticas",
+                    requiresRole = listOf("Administrador")
+                ) { /* onNavigate */ })
+            }
+        }
+        // Merge de listas
+        profileSettings + services
     }
 
-    Column(
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(animationSpec = tween(600)) +
-                    slideInVertically(initialOffsetY = { -40 })
-        ) {
-            Text(
-                text = "Mi cuenta",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-        }
-
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(animationSpec = tween(600, delayMillis = 100)) +
-                    slideInVertically(
-                        initialOffsetY = { 50 },
-                        animationSpec = tween(600, delayMillis = 100)
-                    )
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 24.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(70.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(
-                        text = name,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = "Boleta: $escomId",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-            }
-        }
-
-        // Opciones del perfil
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(animationSpec = tween(600, delayMillis = 200)) +
-                    slideInVertically(
-                        initialOffsetY = { 50 },
-                        animationSpec = tween(600, delayMillis = 200)
-                    )
-        ) {
-            Column {
-                ProfileMenuItem(
-                    icon = Icons.Default.Settings,
-                    title = "Configuración",
-                    onClick = { }
+        // Ítem 0: Título Principal
+        item {
+            AnimatedItemWrapper(index = 0) {
+                Text(
+                    text = "Mi cuenta",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
-                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(animationSpec = tween(600, delayMillis = 300)) +
-                    slideInVertically(
-                        initialOffsetY = { 50 },
-                        animationSpec = tween(600, delayMillis = 300)
-                    )
-        ) {
-            Column {
-                ProfileMenuItem(
-                    icon = Icons.Default.Help,
-                    title = "Ayuda y soporte",
-                    onClick = { }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+        // Ítem 1: Header con foto y nombre
+        item {
+            AnimatedItemWrapper(index = 1) {
+                UserProfileHeader(name, escomId, userType)
             }
         }
 
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(animationSpec = tween(600, delayMillis = 400)) +
-                    slideInVertically(
-                        initialOffsetY = { 50 },
-                        animationSpec = tween(600, delayMillis = 400)
-                    )
-        ) {
-            ProfileMenuItem(
-                icon = Icons.Default.ExitToApp,
-                title = "Cerrar sesión",
-                onClick = { onLogout() },
-                isDestructive = true
-            )
+        // Ítems 2..N: Lista de opciones
+        itemsIndexed(allOptions) { listIndex, option ->
+            AnimatedItemWrapper(index = listIndex + 2) {
+                MergeMenuItem(option = option)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
 
+feat(admin): implement user promotion and role-based views
+
+- Feat: Implement logic to promote users to Supervisor role via Repository.
+- Fix: Resolve state persistence issue in system and checks toggle buttons (switches).
+- Refactor: Adjust UI visibility to differentiate between Admin and Supervisor views.
+- Style: Polish general UI styling for consistency.
+
 @Composable
-fun ProfileMenuItem(
-    icon: ImageVector,
-    title: String,
-    onClick: () -> Unit,
-    isDestructive: Boolean = false
-) {
+fun MergeMenuItem(option: UniversalOption) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.98f else 1f,
@@ -193,17 +141,20 @@ fun ProfileMenuItem(
         finishedListener = { pressed = false }
     )
 
+    val isDestructive = option.isDestructive
+
+    // Definición de colores
+    val cardColor = if (isDestructive) Color(0xFFFF6E40).copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant
+    val iconBgColor = if (isDestructive) Color(0xFFFF6E40).copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+    val iconTint = if (isDestructive) Color(0xFFFF6E40) else MaterialTheme.colorScheme.primary
+    val titleColor = if (isDestructive) Color(0xFFFF6E40) else MaterialTheme.colorScheme.onBackground
+
     Card(
         onClick = {
             pressed = true
-            onClick()
+            option.onClick()
         },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDestructive)
-                Color(0xFFFF6E40).copy(alpha = 0.1f)
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        ),
+        colors = CardDefaults.cardColors(containerColor = cardColor),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -219,34 +170,106 @@ fun ProfileMenuItem(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        if (isDestructive)
-                            Color(0xFFFF6E40).copy(alpha = 0.2f)
-                        else
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                    ),
+                    .background(iconBgColor),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    icon,
+                    option.icon,
                     contentDescription = null,
-                    tint = if (isDestructive) Color(0xFFFF6E40) else MaterialTheme.colorScheme.primary,
+                    tint = iconTint,
                     modifier = Modifier.size(28.dp)
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (isDestructive) Color(0xFFFF6E40) else MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(1f)
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = option.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = titleColor,
+                )
+                if (option.description != null) {
+                    Text(
+                        text = option.description,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
+            }
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = Color.Gray
+                tint = MaterialTheme.colorScheme.outline,
             )
         }
+    }
+}
+
+@Composable
+fun UserProfileHeader(name: String, escomId: String, userType: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 24.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(70.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(
+                text = name,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = when (userType) {
+                    "ESCOmunidad" -> "Boleta/Empleado: $escomId"
+                    "Supervisor", "Administrador" -> "$userType ID: $escomId"
+                    else -> "Visitante"
+                },
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
+}
+
+@Composable
+fun AnimatedItemWrapper(
+    index: Int,
+    content: @Composable () -> Unit
+) {
+    val animatedProgress = remember { Animatable(initialValue = 0f) }
+
+    LaunchedEffect(Unit) {
+        animatedProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 600,
+                delayMillis = index * 100
+            )
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .graphicsLayer {
+                alpha = animatedProgress.value
+                translationY = 50.dp.toPx() * (1f - animatedProgress.value)
+            }
+    ) {
+        content()
     }
 }

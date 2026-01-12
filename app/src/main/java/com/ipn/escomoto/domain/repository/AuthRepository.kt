@@ -12,5 +12,6 @@ interface AuthRepository {
     suspend fun uploadImage(imageUri: Uri): Result<String>
     suspend fun updateImageUrl(userId: String, newUrl: String): Result<Unit>
     suspend fun sendPasswordResetEmail(email: String): Result<Unit>
-    suspend fun promoteToSupervisor(userId: String): Result<Unit>
+    suspend fun updateUserType(userId: String, newType: String): Result<Unit>
+    suspend fun getUserTypeProfiles(type: String): Result<List<User>>
 }

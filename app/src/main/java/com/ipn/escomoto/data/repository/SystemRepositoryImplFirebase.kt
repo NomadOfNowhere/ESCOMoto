@@ -87,4 +87,23 @@ class SystemRepositoryImplFirebase @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun isAdmin(): Result<Unit> {
+        return try {
+            val userId = auth.currentUser?.uid ?: return Result.failure(Exception("No autenticado"))
+            val snapshot = firestore.collection("users").document(userId).get().await()
+            val role = snapshot.getString("userType") ?: "Visitante"
+
+            // Aceptamos ADMIN y SUPER_ADMIN si manejas jerarquías
+            if (role == "Administrador") {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Acceso denegado: El usuario no tiene permisos de administrador."))
+            }
+
+        } catch (e: Exception) {
+            // Errores de red o de Firestore
+            Result.failure(e)
+        }
+    }
 }

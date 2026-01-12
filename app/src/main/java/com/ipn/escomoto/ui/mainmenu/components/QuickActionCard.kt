@@ -58,8 +58,7 @@ fun QuickActionCard(
             pressed = true
             onClick()
         },
-//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF252538)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(

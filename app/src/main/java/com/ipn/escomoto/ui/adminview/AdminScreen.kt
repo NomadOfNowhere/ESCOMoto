@@ -81,6 +81,8 @@ fun AdminScreen(
     val isLoading = viewModel.isLoading
     var visible by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
+
     LaunchedEffect(isLoading) {
         if (!isLoading) {
             visible = true
@@ -89,9 +91,10 @@ fun AdminScreen(
 
     if (showSearchDialog) {
         UserSearchDialog(
+            userlist = viewModel.userProfiles,
             onDismiss = { showSearchDialog = false },
             onUserSelected = { userId ->
-
+                viewModel.setUserType(userId, "Supervisor")
                 showSearchDialog = false
             }
         )
@@ -100,7 +103,7 @@ fun AdminScreen(
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
             modifier = Modifier.fillMaxSize(),
-            isRefreshing = isLoading,
+            isRefreshing = isRefreshing,
             onRefresh = { viewModel.loadStats() }
         ) {
             LazyColumn(
@@ -211,20 +214,25 @@ fun AdminScreen(
                         )
                     }
                 }
-                item {
-                    StyledMasterControl(
-                        visible = visible,
-                        systemEnabled = viewModel.systemSettings.systemEnabled,
-                        checksEnabled = viewModel.systemSettings.checksEnabled,
-                        onSystemToggle = { enabled ->
-                            println("Sistema: ${if (enabled) "Activado" else "Desactivado"}")
-                            viewModel.toggleSystem(enabled)
-                        },
-                        onChecksToggle = { enabled ->
-                            println("Check-ins: ${if (enabled) "Permitidos" else "Bloqueados"}")
-                            viewModel.toggleChecks(enabled)
+                if (viewModel.isSettingsLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(100.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
                         }
-                    )
+                    }
+                } else {
+                    item {
+                        StyledMasterControl(
+                            visible = visible,
+                            systemEnabled = viewModel.systemSettings.systemEnabled,
+                            checksEnabled = viewModel.systemSettings.checksEnabled,
+                            onSystemToggle = { viewModel.toggleSystem(it) },
+                            onChecksToggle = { viewModel.toggleChecks(it) }
+                        )
+                    }
                 }
 
                 // Estadísticas del sistema
