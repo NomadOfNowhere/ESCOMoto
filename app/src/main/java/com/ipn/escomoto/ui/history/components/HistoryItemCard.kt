@@ -31,7 +31,9 @@ import com.ipn.escomoto.domain.model.AccessType
 import com.ipn.escomoto.domain.model.StatusType
 import com.ipn.escomoto.ui.theme.*
 import androidx.compose.foundation.BorderStroke
+import com.ipn.escomoto.ui.common.StatusData
 import com.ipn.escomoto.utils.toDateString
+import com.ipn.escomoto.ui.components.EnhancedStatusBadge
 
 @Composable
 fun HistoryItemCard(
@@ -295,72 +297,4 @@ fun MiniStatusIndicator(status: StatusType, statusColor: Color) {
     }
 }
 
-@Composable
-fun EnhancedStatusBadge(status: StatusType, isDarkTheme: Boolean) {
-    val (backgroundColor, textColor, borderColor, icon, text) = when (status) {
-        StatusType.APPROVED -> {
-            val green = Color(0xFF4CAF50)
-            StatusData(
-                green.copy(alpha = 0.15f),
-                green,
-                green.copy(alpha = 0.3f),
-                Icons.Default.CheckCircle,
-                "Aprobado"
-            )
-        }
-        StatusType.REJECTED -> {
-            val red = Color(0xFFEF5350)
-            StatusData(
-                red.copy(alpha = 0.15f),
-                red,
-                red.copy(alpha = 0.3f),
-                Icons.Default.Cancel,
-                "Rechazado"
-            )
-        }
-        else -> {
-            val gray = if (isDarkTheme) TextHint else TextHintLight
-            StatusData(
-                gray.copy(alpha = 0.15f),
-                gray,
-                gray.copy(alpha = 0.3f),
-                Icons.Default.Schedule,
-                "Pendiente"
-            )
-        }
-    }
 
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = backgroundColor,
-        border = BorderStroke(1.dp, borderColor)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(3.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = textColor,
-                modifier = Modifier.size(18.dp)
-            )
-            Text(
-                text = text,
-                color = textColor,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-// Data class para el badge
-data class StatusData(
-    val backgroundColor: Color,
-    val textColor: Color,
-    val borderColor: Color,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val text: String
-)

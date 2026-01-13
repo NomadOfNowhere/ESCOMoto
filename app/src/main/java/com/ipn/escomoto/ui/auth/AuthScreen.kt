@@ -59,6 +59,15 @@ fun AuthScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarErrorMessage = viewModel.snackbarErrorMessage
+    var registerType by remember { mutableStateOf("ESCOMunidad") }
+
+    val imgblu = remember(isLogin, registerType) {
+        if (isLogin) {
+            "login"
+        } else {
+            if (registerType == "Visitante") "chad" else "register"
+        }
+    }
 
     LaunchedEffect(snackbarErrorMessage) {
         if (snackbarErrorMessage != null) {
@@ -97,7 +106,6 @@ fun AuthScreen(
                 hostState = snackbarHostState,
                 modifier = Modifier.padding(16.dp)
             ) { data ->
-                // Usamos tu componente personalizado
                 StyledSnackbar(
                     message = data.visuals.message,
                     isDarkTheme = isDarkTheme,
@@ -129,7 +137,7 @@ fun AuthScreen(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
                 // Logo con animación
                 Box(
@@ -137,7 +145,7 @@ fun AuthScreen(
                         .scale(logoScale)
                         .alpha(logoAlpha)
                 ) {
-                    LogoSection()
+                    LogoSection(imgblu)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -182,6 +190,10 @@ fun AuthScreen(
                         RegisterForm(
                             isLoading = viewModel.isLoading,
                             errorMessage = viewModel.errorMessage,
+                            currentType = registerType,
+                            onTypeChanged = { newType ->
+                                registerType = newType
+                            },
                             onRegisterSubmit = { name, escomId, email, pass, confirm, type ->
                                 viewModel.register(
                                     User(

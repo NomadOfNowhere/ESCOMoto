@@ -32,18 +32,6 @@ class AuthViewModel @Inject constructor(
         checkUserSession()
     }
 
-//    private fun checkUserSession() {
-//        executeAuthAction(
-//            action = {
-//                // Llamamos al repositorio para obtener la sesión activa
-//                authRepository.getCurrentUser()
-//            },
-//            onSuccessCallback = {
-//
-//            }
-//        )
-//    }
-
     private fun checkUserSession() {
         executeAuthAction(
             action = {

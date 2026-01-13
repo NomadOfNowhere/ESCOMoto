@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -56,6 +57,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -63,6 +65,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.ipn.escomoto.ui.auth.components.AnimatedLoginButton
 import com.ipn.escomoto.ui.auth.components.AnimatedPasswordField
 import com.ipn.escomoto.ui.auth.components.AnimatedTextField
@@ -78,10 +81,11 @@ import com.ipn.escomoto.ui.theme.TextSecondaryLight
 fun RegisterForm(
     isLoading: Boolean,
     errorMessage: String?,
+    currentType: String,
+    onTypeChanged: (String) -> Unit,
     onRegisterSubmit: (String, String, String, String, String, String) -> Unit,  // Nombre, EscomID, Email, Password, ConfirmPassword, Tipo
     onSwitchToLogin: () -> Unit
 ) {
-    var userType by remember { mutableStateOf("ESCOMunidad") }
     var name by remember { mutableStateOf("") }
     var escomId by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -127,9 +131,6 @@ fun RegisterForm(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         imageUri = uri
-//        if (uri != null) {
-//            imageUriError = false
-//        }
     }
 
     Card(
@@ -180,14 +181,14 @@ fun RegisterForm(
             ) {
                 AnimatedUserTypeChip(
                     label = "ESCOMunidad",
-                    selected = userType == "ESCOMunidad",
-                    onClick = { userType = "ESCOMunidad" },
+                    selected = currentType == "ESCOMunidad",
+                    onClick = { onTypeChanged("ESCOMunidad") },
                     modifier = Modifier.weight(1f)
                 )
                 AnimatedUserTypeChip(
                     label = "Visitante",
-                    selected = userType == "Visitante",
-                    onClick = { userType = "Visitante" },
+                    selected = currentType == "Visitante",
+                    onClick = { onTypeChanged("Visitante") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -215,7 +216,7 @@ fun RegisterForm(
 
             // escomID con transición animada
             AnimatedVisibility(
-                visible = userType == "ESCOMunidad",
+                visible = currentType == "ESCOMunidad",
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
             ) {
@@ -245,7 +246,7 @@ fun RegisterForm(
 
             // Info visitante con animación
             AnimatedVisibility(
-                visible = userType == "Visitante",
+                visible = currentType == "Visitante",
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
             ) {
@@ -337,7 +338,7 @@ fun RegisterForm(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()     // Cierra el teclado
-                        onRegisterSubmit(name, escomId, email, password, confirmPassword, userType)
+                        onRegisterSubmit(name, escomId, email, password, confirmPassword, currentType)
                     }
                 )
             )
@@ -346,7 +347,7 @@ fun RegisterForm(
 
             // Sección para subir foto de identificación oficial
             AnimatedVisibility(
-                visible = userType == "Visitante",
+                visible = currentType == "Visitante",
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
             ) {
@@ -362,19 +363,30 @@ fun RegisterForm(
                             .clickable { imagePickerLauncher.launch("image/*") },
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.AddAPhoto,
-                                contentDescription = null,
-                                tint = PurplePrimary,
-                                modifier = Modifier.size(32.dp)
+                        if (imageUri != null) {
+                            // Mostrar la imagen seleccionada
+                            AsyncImage(
+                                model = imageUri,
+                                contentDescription = "ID seleccionado",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
-                            Text(
-                                text = "Subir foto",
-                                fontSize = 12.sp,
-                                color = PurplePrimary,
-                                fontWeight = FontWeight.Medium
-                            )
+                        } else {
+                            // Icono por defecto
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = Icons.Default.AddAPhoto,
+                                    contentDescription = null,
+                                    tint = PurplePrimary,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Text(
+                                    text = "Subir foto",
+                                    fontSize = 12.sp,
+                                    color = PurplePrimary,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
 
@@ -439,7 +451,7 @@ fun RegisterForm(
             }
 
             AnimatedLoginButton(
-                onClick = { onRegisterSubmit(name, escomId, email, password, confirmPassword, userType) },
+                onClick = { onRegisterSubmit(name, escomId, email, password, confirmPassword, currentType) },
                 isLoading = isLoading,
                 text = "Crear cuenta",
                 enabled = acceptTerms,
