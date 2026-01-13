@@ -22,6 +22,7 @@ class MainViewModel @Inject constructor(
     }
 
     private val _appState = MutableStateFlow<AppState>(AppState.Loading)
+
     val appState = _appState.asStateFlow()
 
     init {
