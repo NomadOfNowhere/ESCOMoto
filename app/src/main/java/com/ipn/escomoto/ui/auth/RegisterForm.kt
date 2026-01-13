@@ -83,7 +83,7 @@ fun RegisterForm(
     errorMessage: String?,
     currentType: String,
     onTypeChanged: (String) -> Unit,
-    onRegisterSubmit: (String, String, String, String, String, String) -> Unit,  // Nombre, EscomID, Email, Password, ConfirmPassword, Tipo
+    onRegisterSubmit: (String, String, String, String, String, String, Uri?) -> Unit,  // Nombre, EscomID, Email, Password, ConfirmPassword, Tipo
     onSwitchToLogin: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -338,7 +338,7 @@ fun RegisterForm(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()     // Cierra el teclado
-                        onRegisterSubmit(name, escomId, email, password, confirmPassword, currentType)
+                        onRegisterSubmit(name, escomId, email, password, confirmPassword, currentType, imageUri)
                     }
                 )
             )
@@ -451,7 +451,7 @@ fun RegisterForm(
             }
 
             AnimatedLoginButton(
-                onClick = { onRegisterSubmit(name, escomId, email, password, confirmPassword, currentType) },
+                onClick = { onRegisterSubmit(name, escomId, email, password, confirmPassword, currentType, imageUri) },
                 isLoading = isLoading,
                 text = "Crear cuenta",
                 enabled = acceptTerms,

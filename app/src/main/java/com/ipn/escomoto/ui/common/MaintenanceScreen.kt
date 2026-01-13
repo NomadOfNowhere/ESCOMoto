@@ -47,7 +47,7 @@ fun MaintenanceScreen() {
                 .clip(RoundedCornerShape(16.dp))
         ) {
             ImgFromString(
-                imageName = "manteinance",
+                imageName = "maintenance",
                 contentDescription = "",
                 modifier = Modifier
                     .size(150.dp)

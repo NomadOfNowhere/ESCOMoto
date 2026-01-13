@@ -194,7 +194,7 @@ fun AuthScreen(
                             onTypeChanged = { newType ->
                                 registerType = newType
                             },
-                            onRegisterSubmit = { name, escomId, email, pass, confirm, type ->
+                            onRegisterSubmit = { name, escomId, email, pass, confirm, type, uri ->
                                 viewModel.register(
                                     User(
                                         name = name,
@@ -204,6 +204,7 @@ fun AuthScreen(
                                     ),
                                     password = pass,
                                     confirmPassword = confirm,
+                                    imageUri = uri,
                                     onLoginSuccess
                                 )
                             },

@@ -1,5 +1,6 @@
 package com.ipn.escomoto.ui.auth
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,17 +81,26 @@ class AuthViewModel @Inject constructor(
         user: User,
         password: String,
         confirmPassword: String,
+        imageUri: Uri?,
         onRegisterSuccess: () -> Unit
     ) {
-        if (user.name.isBlank() || user.email.isBlank() || password.isBlank()
-            || (user.userType == "ESCOMunidad" && user.escomId!!.isBlank())
-            || (user.userType == "Visitante" && user.officialIdUrl!!.isBlank())) {
+        if (user.name.isBlank() || user.email.isBlank() || password.isBlank()) {
             errorMessage = "Por favor, llena todos los campos"
             return
         }
 
-        if(user.userType == "ESCOMunidad" && user.escomId!!.length < 10) {
-            errorMessage = "Ingresa un ID de ESCOMunidad válido"
+        if (user.userType == "ESCOMunidad" && user.escomId.isNullOrBlank()) {
+            errorMessage = "El número de boleta/empleado es obligatorio"
+            return
+        }
+
+        if(user.userType == "ESCOMunidad" && (user.escomId?.length ?: 0) < 10) {
+            errorMessage = "Ingresa un ID de ESCOMunidad válido (10 dígitos)"
+            return
+        }
+
+        if (user.userType == "Visitante" && imageUri == null) {
+            errorMessage = "Debes subir una foto de tu identificación"
             return
         }
 
